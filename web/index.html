@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud-Native Issue Tracker - Local Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .response {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+        .issues-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .issue-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .issue-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .issue-meta {
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧪 Cloud-Native Issue Tracker</h1>
+        <p>Local Testing Interface - v1.0.0</p>
+        <p><strong>Author:</strong> Vincent Wachira | <strong>Date:</strong> 12-Aug-2025</p>
+    </div>
+
+    <div class="container">
+        <!-- API Testing Panel -->
+        <div class="card">
+            <h2>🔧 API Testing</h2>
+            <p>Test the Lambda handler endpoints locally</p>
+            
+            <div class="form-group">
+                <label for="endpoint">Endpoint:</label>
+                <select id="endpoint">
+                    <option value="GET /issues">GET /issues - List Issues</option>
+                    <option value="POST /issues">POST /issues - Create Issue</option>
+                    <option value="GET /issues/123">GET /issues/123 - Get Issue</option>
+                    <option value="PUT /issues/123">PUT /issues/123 - Update Issue</option>
+                    <option value="DELETE /issues/123">DELETE /issues/123 - Delete Issue</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="requestBody">Request Body (for POST/PUT):</label>
+                <textarea id="requestBody" rows="4" placeholder='{"title": "Test Issue", "description": "Test Description"}'></textarea>
+            </div>
+
+            <button onclick="testEndpoint()">🚀 Test Endpoint</button>
+
+            <div id="apiResponse" class="response" style="display: none;"></div>
+        </div>
+
+        <!-- Issue Management Panel -->
+        <div class="card">
+            <h2>📋 Issue Management</h2>
+            <p>Create and manage issues through the UI</p>
+            
+            <div class="form-group">
+                <label for="issueTitle">Title:</label>
+                <input type="text" id="issueTitle" placeholder="Enter issue title">
+            </div>
+
+            <div class="form-group">
+                <label for="issueDescription">Description:</label>
+                <textarea id="issueDescription" rows="3" placeholder="Enter issue description"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="issuePriority">Priority:</label>
+                <select id="issuePriority">
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM" selected>Medium</option>
+                    <option value="HIGH">High</option>
+                    <option value="CRITICAL">Critical</option>
+                </select>
+            </div>
+
+            <button onclick="createIssue()">➕ Create Issue</button>
+            <button onclick="loadIssues()">🔄 Refresh Issues</button>
+
+            <div id="issuesList" class="issues-list"></div>
+        </div>
+    </div>
+
+    <!-- System Status Panel -->
+    <div class="card" style="margin-top: 30px;">
+        <h2>📊 System Status</h2>
+        <div id="systemStatus">
+            <p><span class="status success">✅ Lambda Handler Ready</span></p>
+            <p><span class="status info">ℹ️ Local Testing Mode</span></p>
+            <p><span class="status info">ℹ️ API Gateway Simulation</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Simulate Lambda handler responses
+        const mockHandler = {
+            'GET /issues': () => ({
+                statusCode: 200,
+                body: JSON.stringify({
+                    items: [
+                        { issueId: 'ISSUE-001', title: 'Sample Issue 1', status: 'OPEN', priority: 'MEDIUM' },
+                        { issueId: 'ISSUE-002', title: 'Sample Issue 2', status: 'IN_PROGRESS', priority: 'HIGH' }
+                    ],
+                    nextToken: null
+                })
+            }),
+            'POST /issues': (body) => ({
+                statusCode: 201,
+                body: JSON.stringify({
+                    issueId: 'ISSUE-' + Date.now(),
+                    title: body?.title || 'New Issue',
+                    status: 'OPEN',
+                    priority: body?.priority || 'MEDIUM'
+                })
+            }),
+            'GET /issues/123': () => ({
+                statusCode: 200,
+                body: JSON.stringify({
+                    issueId: '123',
+                    title: 'Sample Issue',
+                    description: 'This is a sample issue for testing',
+                    status: 'OPEN',
+                    priority: 'MEDIUM'
+                })
+            }),
+            'PUT /issues/123': (body) => ({
+                statusCode: 200,
+                body: JSON.stringify({
+                    issueId: '123',
+                    title: body?.title || 'Updated Issue',
+                    status: 'UPDATED',
+                    priority: body?.priority || 'MEDIUM'
+                })
+            }),
+            'DELETE /issues/123': () => ({
+                statusCode: 204,
+                body: ''
+            })
+        };
+
+        let issues = [
+            { issueId: 'ISSUE-001', title: 'Sample Issue 1', description: 'This is a sample issue', status: 'OPEN', priority: 'MEDIUM' },
+            { issueId: 'ISSUE-002', title: 'Sample Issue 2', description: 'Another sample issue', status: 'IN_PROGRESS', priority: 'HIGH' }
+        ];
+
+        function testEndpoint() {
+            const endpoint = document.getElementById('endpoint').value;
+            const requestBody = document.getElementById('requestBody').value;
+            
+            const responseDiv = document.getElementById('apiResponse');
+            responseDiv.style.display = 'block';
+            
+            try {
+                const handler = mockHandler[endpoint];
+                if (!handler) {
+                    responseDiv.innerHTML = `❌ Error: Unknown endpoint "${endpoint}"`;
+                    return;
+                }
+
+                const body = requestBody ? JSON.parse(requestBody) : null;
+                const result = handler(body);
+                
+                responseDiv.innerHTML = `✅ Status: ${result.statusCode}\n📄 Response: ${result.body}`;
+            } catch (error) {
+                responseDiv.innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+
+        function createIssue() {
+            const title = document.getElementById('issueTitle').value;
+            const description = document.getElementById('issueDescription').value;
+            const priority = document.getElementById('issuePriority').value;
+            
+            if (!title) {
+                alert('Please enter a title for the issue');
+                return;
+            }
+
+            const newIssue = {
+                issueId: 'ISSUE-' + Date.now(),
+                title: title,
+                description: description,
+                status: 'OPEN',
+                priority: priority,
+                createdAt: new Date().toISOString()
+            };
+
+            issues.push(newIssue);
+            displayIssues();
+            
+            // Clear form
+            document.getElementById('issueTitle').value = '';
+            document.getElementById('issueDescription').value = '';
+            document.getElementById('issuePriority').value = 'MEDIUM';
+        }
+
+        function loadIssues() {
+            displayIssues();
+        }
+
+        function displayIssues() {
+            const issuesList = document.getElementById('issuesList');
+            issuesList.innerHTML = '';
+            
+            issues.forEach(issue => {
+                const issueDiv = document.createElement('div');
+                issueDiv.className = 'issue-item';
+                issueDiv.innerHTML = `
+                    <div class="issue-title">${issue.title}</div>
+                    <div class="issue-meta">
+                        ID: ${issue.issueId} | 
+                        Status: <span class="status ${issue.status === 'OPEN' ? 'success' : 'info'}">${issue.status}</span> | 
+                        Priority: ${issue.priority}
+                    </div>
+                    ${issue.description ? `<div style="margin-top: 5px; font-size: 14px;">${issue.description}</div>` : ''}
+                `;
+                issuesList.appendChild(issueDiv);
+            });
+        }
+
+        // Initialize the interface
+        displayIssues();
+    </script>
+</body>
+</html>

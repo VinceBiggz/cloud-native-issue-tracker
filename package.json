@@ -1,26 +1,52 @@
+
 {
   "name": "cloud-issue-tracker",
   "version": "1.0.0",
-  "description": "",
+  "description": "Cloud-native issue tracking platform built with AWS Lambda, DynamoDB, and API Gateway",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run build -w infra && npm run build -w services/api && npm run build -w packages/shared",
     "clean": "npm -ws run clean --if-present",
     "fmt": "npx prettier -w .",
-    "lint": "echo lint",
+    "lint": "npm run lint:check",
+    "lint:check": "eslint . --ext .ts,.js",
+    "lint:fix": "eslint . --ext .ts,.js --fix",
     "synth": "npm -w infra run synth",
     "deploy": "npm -w infra run deploy",
     "diff": "npm -w infra run diff",
-    "bootstrap": "npm -w infra run bootstrap"
+    "bootstrap": "npm -w infra run bootstrap",
+    "dev": "node server.js",
+    "test:local": "node test-local.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "aws",
+    "lambda",
+    "dynamodb",
+    "api-gateway",
+    "cdk",
+    "serverless",
+    "typescript",
+    "issue-tracker"
+  ],
+  "author": "Vincent Wachira",
   "license": "ISC",
   "private": "true",
   "workspaces": [
     "infra",
     "services/*",
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "prettier": "^3.2.5"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
 }
