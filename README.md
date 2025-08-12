@@ -43,6 +43,22 @@ cloud-native-issue-tracker/
 - **AWS CLI**: For deployment (optional for local testing)
 - **AWS CDK**: For infrastructure deployment
 
+### Local Testing with Web Interface
+
+The project includes a beautiful web interface for testing all functionality locally:
+
+1. **Start the development server**:
+   ```bash
+   npm run dev
+   ```
+
+2. **Open your browser** and go to: `http://localhost:3000`
+
+3. **Test the features**:
+   - 🔧 **API Testing Panel**: Test all Lambda endpoints
+   - 📋 **Issue Management**: Create and manage issues
+   - 📊 **System Status**: View application status
+
 ### Local Development
 
 1. **Clone and Install**:
@@ -59,7 +75,12 @@ cloud-native-issue-tracker/
 
 3. **Test Locally**:
    ```bash
+   # Test Lambda handler directly
    node test-local.js
+   
+   # Start web interface (recommended)
+   npm run dev
+   # Then open http://localhost:3000 in your browser
    ```
 
 4. **Validate Infrastructure**:
@@ -107,7 +128,10 @@ The local test script validates all API endpoints:
 - `npm run build` - Build all workspaces
 - `npm run clean` - Clean all build artifacts
 - `npm run fmt` - Format code with Prettier
-- `npm run lint` - Run linting (placeholder)
+- `npm run lint` - Run ESLint checks
+- `npm run lint:fix` - Fix ESLint issues automatically
+- `npm run dev` - Start local development server
+- `npm run test:local` - Test Lambda handler locally
 - `npm run synth` - Synthesize CDK CloudFormation
 - `npm run deploy` - Deploy to AWS
 - `npm run diff` - Show CDK diff
