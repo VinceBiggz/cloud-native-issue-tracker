@@ -1,0 +1,13 @@
+﻿node_modules/
+dist/
+coverage/
+.env
+.env.*
+.npmrc
+.vscode/
+.DS_Store
+*.log
+cdk.out/
+.cdk.staging/
+.aws-sam/
+package-lock.json
