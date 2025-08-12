@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm run build -w infra && npm run build -w services/api && npm run build -w packages/shared"
   },
   "keywords": [],
   "author": "",

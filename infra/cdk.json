@@ -1,0 +1,8 @@
+{
+  "app": "npx ts-node --prefer-ts-exts bin/cloud-issue-tracker.ts",
+  "context": {
+    "@aws-cdk/core:bootstrapQualifier": "issue",
+    "@aws-cdk/aws-lambda:recognizeVersionProps": true,
+    "@aws-cdk/aws-apigatewayv2:authorizerChangeToOnDemand": true
+  }
+}

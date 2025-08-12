@@ -1,0 +1,13 @@
+{
+  "name": "@cloud/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p ."
+  },
+  "devDependencies": {
+    "typescript": "5.5.4"
+  }
+}
