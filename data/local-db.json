@@ -10,6 +10,17 @@
       "createdAt": "2025-08-12T10:00:00.000Z",
       "updatedAt": "2025-08-12T10:00:00.000Z",
       "lastLoginAt": "2025-08-12T10:00:00.000Z"
+    },
+    {
+      "userId": "user-1755089775893",
+      "email": "test@example.com",
+      "firstName": "Test",
+      "lastName": "User",
+      "role": "END_USER",
+      "status": "PENDING_VERIFICATION",
+      "createdAt": "2025-08-13T12:56:15.900Z",
+      "updatedAt": "2025-08-13T12:56:28.318Z",
+      "lastLoginAt": "2025-08-13T12:56:28.318Z"
     }
   ],
   "sessions": [],
@@ -24,7 +35,10 @@
       "assignee": null,
       "createdAt": "2025-08-12T10:00:00.000Z",
       "updatedAt": "2025-08-12T10:00:00.000Z",
-      "tags": ["sample", "test"]
+      "tags": [
+        "sample",
+        "test"
+      ]
     },
     {
       "issueId": "ISSUE-002",
@@ -36,7 +50,10 @@
       "assignee": null,
       "createdAt": "2025-08-12T10:00:00.000Z",
       "updatedAt": "2025-08-12T10:00:00.000Z",
-      "tags": ["sample", "high-priority"]
+      "tags": [
+        "sample",
+        "high-priority"
+      ]
     }
   ]
 }

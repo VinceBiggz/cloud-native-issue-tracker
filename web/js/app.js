@@ -228,6 +228,10 @@ const UI = {
     showAuth: () => {
         document.getElementById('authSection').classList.add('active');
         document.getElementById('appSection').classList.remove('active');
+        // Update URL
+        if (window.history && window.history.pushState) {
+            window.history.pushState({ page: 'auth' }, 'Authentication', '/auth');
+        }
     },
 
     /**
@@ -237,7 +241,75 @@ const UI = {
         document.getElementById('authSection').classList.remove('active');
         document.getElementById('appSection').classList.add('active');
         UI.updateUserInfo();
+        UI.showDashboard(); // Show dashboard by default
+        // Update URL
+        if (window.history && window.history.pushState) {
+            window.history.pushState({ page: 'dashboard' }, 'Dashboard', '/dashboard');
+        }
+    },
+
+    /**
+     * Show dashboard section
+     */
+    showDashboard: () => {
+        UI.hideAllSections();
+        document.getElementById('dashboardSection').classList.add('active');
+        UI.updateNavigation('dashboard');
+        Dashboard.updateMetrics();
+        // Update URL
+        if (window.history && window.history.pushState) {
+            window.history.pushState({ page: 'dashboard' }, 'Dashboard', '/dashboard');
+        }
+    },
+
+    /**
+     * Show issues section
+     */
+    showIssues: () => {
+        UI.hideAllSections();
+        document.getElementById('issuesSection').classList.add('active');
+        UI.updateNavigation('issues');
         IssueManager.displayIssues();
+        // Update URL
+        if (window.history && window.history.pushState) {
+            window.history.pushState({ page: 'issues' }, 'Issues', '/issues');
+        }
+    },
+
+    /**
+     * Show API testing section
+     */
+    showAPI: () => {
+        UI.hideAllSections();
+        document.getElementById('apiSection').classList.add('active');
+        UI.updateNavigation('api');
+        // Update URL
+        if (window.history && window.history.pushState) {
+            window.history.pushState({ page: 'api' }, 'API Testing', '/api');
+        }
+    },
+
+    /**
+     * Hide all content sections
+     */
+    hideAllSections: () => {
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+    },
+
+    /**
+     * Update navigation buttons
+     */
+    updateNavigation: (activeSection) => {
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        const activeBtn = document.querySelector(`[onclick*="${activeSection}"]`);
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+        }
     },
 
     /**
@@ -250,6 +322,102 @@ const UI = {
             document.getElementById('userRole').textContent = currentUser.role;
             document.getElementById('userEmail').textContent = currentUser.email;
         }
+    }
+};
+
+// ===== DASHBOARD MODULE =====
+const Dashboard = {
+    /**
+     * Update dashboard metrics
+     */
+    updateMetrics: () => {
+        const totalIssues = issues.length;
+        const openIssues = issues.filter(issue => issue.status === 'OPEN').length;
+        const inProgressIssues = issues.filter(issue => issue.status === 'IN_PROGRESS').length;
+        const criticalIssues = issues.filter(issue => issue.priority === 'CRITICAL').length;
+
+        // Update metric values
+        document.getElementById('totalIssues').textContent = totalIssues;
+        document.getElementById('openIssues').textContent = openIssues;
+        document.getElementById('inProgressIssues').textContent = inProgressIssues;
+        document.getElementById('criticalIssues').textContent = criticalIssues;
+
+        // Update charts
+        Dashboard.updateStatusChart();
+        Dashboard.updatePriorityChart();
+    },
+
+    /**
+     * Update status chart
+     */
+    updateStatusChart: () => {
+        const statusCounts = {};
+        issues.forEach(issue => {
+            statusCounts[issue.status] = (statusCounts[issue.status] || 0) + 1;
+        });
+
+        const chartContainer = document.getElementById('statusChart');
+        chartContainer.innerHTML = Dashboard.createChartHTML(statusCounts, 'Status Distribution');
+    },
+
+    /**
+     * Update priority chart
+     */
+    updatePriorityChart: () => {
+        const priorityCounts = {};
+        issues.forEach(issue => {
+            priorityCounts[issue.priority] = (priorityCounts[issue.priority] || 0) + 1;
+        });
+
+        const chartContainer = document.getElementById('priorityChart');
+        chartContainer.innerHTML = Dashboard.createChartHTML(priorityCounts, 'Priority Distribution');
+    },
+
+    /**
+     * Create simple chart HTML
+     */
+    createChartHTML: (data, title) => {
+        if (Object.keys(data).length === 0) {
+            return '<p style="text-align: center; color: #888;">No data available</p>';
+        }
+
+        let chartHTML = `<h4 style="margin: 0 0 15px 0; color: #333;">${title}</h4>`;
+        
+        Object.entries(data).forEach(([key, value]) => {
+            const percentage = Math.round((value / issues.length) * 100) || 0;
+            const color = Dashboard.getColorForKey(key);
+            
+            chartHTML += `
+                <div style="margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span style="font-weight: 600; color: #333;">${key}</span>
+                        <span style="color: #666;">${value} (${percentage}%)</span>
+                    </div>
+                    <div style="background: #e1e5e9; border-radius: 4px; height: 8px;">
+                        <div style="background: ${color}; height: 100%; border-radius: 4px; width: ${percentage}%;"></div>
+                    </div>
+                </div>
+            `;
+        });
+
+        return chartHTML;
+    },
+
+    /**
+     * Get color for chart keys
+     */
+    getColorForKey: (key) => {
+        const colors = {
+            'OPEN': '#28a745',
+            'IN_PROGRESS': '#ffc107',
+            'RESOLVED': '#17a2b8',
+            'CLOSED': '#6c757d',
+            'LOW': '#28a745',
+            'MEDIUM': '#ffc107',
+            'HIGH': '#fd7e14',
+            'CRITICAL': '#dc3545'
+        };
+        return colors[key] || '#667eea';
     }
 };
 
@@ -280,6 +448,7 @@ const IssueManager = {
 
         issues.push(newIssue);
         IssueManager.displayIssues();
+        Dashboard.updateMetrics(); // Update dashboard metrics
         
         // Clear form
         document.getElementById('issueTitle').value = '';
@@ -378,6 +547,26 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('submit', (e) => {
         e.preventDefault();
     });
+
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', (event) => {
+        if (event.state && event.state.page) {
+            switch (event.state.page) {
+                case 'dashboard':
+                    UI.showDashboard();
+                    break;
+                case 'issues':
+                    UI.showIssues();
+                    break;
+                case 'api':
+                    UI.showAPI();
+                    break;
+                case 'auth':
+                    UI.showAuth();
+                    break;
+            }
+        }
+    });
 });
 
 // ===== GLOBAL FUNCTIONS (for HTML onclick) =====
@@ -389,3 +578,6 @@ window.logout = Auth.logout;
 window.createIssue = IssueManager.createIssue;
 window.loadIssues = IssueManager.loadIssues;
 window.testEndpoint = APITester.testEndpoint;
+window.showDashboard = UI.showDashboard;
+window.showIssues = UI.showIssues;
+window.showAPI = UI.showAPI;

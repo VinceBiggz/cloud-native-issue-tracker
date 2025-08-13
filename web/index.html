@@ -86,74 +86,134 @@
         </div>
     </div>
 
-    <!-- Main Application Section -->
-    <div id="appSection" class="auth-section">
-        <!-- User Info -->
-        <div id="userInfo" class="user-info" style="display: none;">
-            <h3>👤 Welcome, <span id="userName">User</span>!</h3>
-            <p><strong>Role:</strong> <span id="userRole">User</span> | <strong>Email:</strong> <span id="userEmail">user@example.com</span></p>
-            <button onclick="logout()">🚪 Logout</button>
-        </div>
+               <!-- Main Application Section -->
+           <div id="appSection" class="auth-section">
+               <!-- User Info -->
+               <div id="userInfo" class="user-info" style="display: none;">
+                   <h3>👤 Welcome, <span id="userName">User</span>!</h3>
+                   <p><strong>Role:</strong> <span id="userRole">User</span> | <strong>Email:</strong> <span id="userEmail">user@example.com</span></p>
+                   <button onclick="logout()">🚪 Logout</button>
+               </div>
 
-        <div class="container">
-            <!-- API Testing Panel -->
-            <div class="card">
-                <h2>🔧 API Testing</h2>
-                <p>Test the Lambda handler endpoints locally</p>
-                
-                <div class="form-group">
-                    <label for="endpoint">Endpoint:</label>
-                    <select id="endpoint">
-                        <option value="GET /issues">GET /issues - List Issues</option>
-                        <option value="POST /issues">POST /issues - Create Issue</option>
-                        <option value="GET /issues/123">GET /issues/123 - Get Issue</option>
-                        <option value="PUT /issues/123">PUT /issues/123 - Update Issue</option>
-                        <option value="DELETE /issues/123">DELETE /issues/123 - Delete Issue</option>
-                        <option value="GET /auth/me">GET /auth/me - Get Current User</option>
-                    </select>
-                </div>
+               <!-- Navigation Menu -->
+               <div class="nav-menu">
+                   <button class="nav-btn active" onclick="showDashboard()">📊 Dashboard</button>
+                   <button class="nav-btn" onclick="showIssues()">📋 Issues</button>
+                   <button class="nav-btn" onclick="showAPI()">🔧 API Testing</button>
+               </div>
 
-                <div class="form-group">
-                    <label for="requestBody">Request Body (for POST/PUT):</label>
-                    <textarea id="requestBody" rows="4" placeholder='{"title": "Test Issue", "description": "Test Description"}'></textarea>
-                </div>
+               <!-- Dashboard Section -->
+               <div id="dashboardSection" class="content-section active">
+                   <div class="dashboard-grid">
+                       <div class="metric-card">
+                           <div class="metric-icon">📊</div>
+                           <div class="metric-content">
+                               <h3>Total Issues</h3>
+                               <div class="metric-value" id="totalIssues">0</div>
+                           </div>
+                       </div>
+                       <div class="metric-card">
+                           <div class="metric-icon">🟢</div>
+                           <div class="metric-content">
+                               <h3>Open Issues</h3>
+                               <div class="metric-value" id="openIssues">0</div>
+                           </div>
+                       </div>
+                       <div class="metric-card">
+                           <div class="metric-icon">🟡</div>
+                           <div class="metric-content">
+                               <h3>In Progress</h3>
+                               <div class="metric-value" id="inProgressIssues">0</div>
+                           </div>
+                       </div>
+                       <div class="metric-card">
+                           <div class="metric-icon">🔴</div>
+                           <div class="metric-content">
+                               <h3>Critical Issues</h3>
+                               <div class="metric-value" id="criticalIssues">0</div>
+                           </div>
+                       </div>
+                   </div>
+                   
+                   <div class="dashboard-charts">
+                       <div class="chart-card">
+                           <h3>Issues by Status</h3>
+                           <div id="statusChart" class="chart-container"></div>
+                       </div>
+                       <div class="chart-card">
+                           <h3>Issues by Priority</h3>
+                           <div id="priorityChart" class="chart-container"></div>
+                       </div>
+                   </div>
+               </div>
 
-                <button onclick="testEndpoint()">🚀 Test Endpoint</button>
+               <!-- Issues Section -->
+               <div id="issuesSection" class="content-section">
 
-                <div id="apiResponse" class="response" style="display: none;"></div>
-            </div>
+                           <div class="container">
+                       <!-- Issue Management Panel -->
+                       <div class="card">
+                           <h2>📋 Issue Management</h2>
+                           <p>Create and manage issues through the UI</p>
+                           
+                           <div class="form-group">
+                               <label for="issueTitle">Title:</label>
+                               <input type="text" id="issueTitle" placeholder="Enter issue title">
+                           </div>
 
-            <!-- Issue Management Panel -->
-            <div class="card">
-                <h2>📋 Issue Management</h2>
-                <p>Create and manage issues through the UI</p>
-                
-                <div class="form-group">
-                    <label for="issueTitle">Title:</label>
-                    <input type="text" id="issueTitle" placeholder="Enter issue title">
-                </div>
+                           <div class="form-group">
+                               <label for="issueDescription">Description:</label>
+                               <textarea id="issueDescription" rows="3" placeholder="Enter issue description"></textarea>
+                           </div>
 
-                <div class="form-group">
-                    <label for="issueDescription">Description:</label>
-                    <textarea id="issueDescription" rows="3" placeholder="Enter issue description"></textarea>
-                </div>
+                           <div class="form-group">
+                               <label for="issuePriority">Priority:</label>
+                               <select id="issuePriority">
+                                   <option value="LOW">Low</option>
+                                   <option value="MEDIUM" selected>Medium</option>
+                                   <option value="HIGH">High</option>
+                                   <option value="CRITICAL">Critical</option>
+                               </select>
+                           </div>
 
-                <div class="form-group">
-                    <label for="issuePriority">Priority:</label>
-                    <select id="issuePriority">
-                        <option value="LOW">Low</option>
-                        <option value="MEDIUM" selected>Medium</option>
-                        <option value="HIGH">High</option>
-                        <option value="CRITICAL">Critical</option>
-                    </select>
-                </div>
+                           <button onclick="createIssue()">➕ Create Issue</button>
+                           <button onclick="loadIssues()">🔄 Refresh Issues</button>
 
-                <button onclick="createIssue()">➕ Create Issue</button>
-                <button onclick="loadIssues()">🔄 Refresh Issues</button>
+                           <div id="issuesList" class="issues-list"></div>
+                       </div>
+                   </div>
+               </div>
 
-                <div id="issuesList" class="issues-list"></div>
-            </div>
-        </div>
+               <!-- API Testing Section -->
+               <div id="apiSection" class="content-section">
+                   <div class="container">
+                       <!-- API Testing Panel -->
+                       <div class="card">
+                           <h2>🔧 API Testing</h2>
+                           <p>Test the Lambda handler endpoints locally</p>
+                           
+                           <div class="form-group">
+                               <label for="endpoint">Endpoint:</label>
+                               <select id="endpoint">
+                                   <option value="GET /issues">GET /issues - List Issues</option>
+                                   <option value="POST /issues">POST /issues - Create Issue</option>
+                                   <option value="GET /issues/123">GET /issues/123 - Get Issue</option>
+                                   <option value="PUT /issues/123">PUT /issues/123 - Update Issue</option>
+                                   <option value="DELETE /issues/123">DELETE /issues/123 - Delete Issue</option>
+                                   <option value="GET /auth/me">GET /auth/me - Get Current User</option>
+                               </select>
+                           </div>
+
+                           <div class="form-group">
+                               <label for="requestBody">Request Body (for POST/PUT):</label>
+                               <textarea id="requestBody" rows="4" placeholder='{"title": "Test Issue", "description": "Test Description"}'></textarea>
+                           </div>
+
+                           <button onclick="testEndpoint()">🚀 Test Endpoint</button>
+
+                           <div id="apiResponse" class="response" style="display: none;"></div>
+                       </div>
+                   </div>
 
         <!-- System Status Panel -->
         <div class="card" style="margin-top: 30px;">

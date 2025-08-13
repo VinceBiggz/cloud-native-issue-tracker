@@ -141,15 +141,18 @@ function handleApiRequest(req, res, pathname) {
 function handleAuthRequest(req, res, endpoint, method) {
   console.log(`Auth request: ${method} ${endpoint}`); // Debug logging
   
-  if (endpoint === '/auth/register' && method === 'POST') {
+  // Remove /auth prefix from endpoint for matching
+  const authEndpoint = endpoint.replace('/auth', '');
+  
+  if (authEndpoint === '/register' && method === 'POST') {
     handleRegister(req, res);
-  } else if (endpoint === '/auth/login' && method === 'POST') {
+  } else if (authEndpoint === '/login' && method === 'POST') {
     handleLogin(req, res);
-  } else if (endpoint === '/auth/refresh' && method === 'POST') {
+  } else if (authEndpoint === '/refresh' && method === 'POST') {
     handleRefreshToken(req, res);
-  } else if (endpoint === '/auth/me' && method === 'GET') {
+  } else if (authEndpoint === '/me' && method === 'GET') {
     handleGetCurrentUser(req, res);
-  } else if (endpoint === '/auth/logout' && method === 'POST') {
+  } else if (authEndpoint === '/logout' && method === 'POST') {
     handleLogout(req, res);
   } else {
     sendResponse(res, {
