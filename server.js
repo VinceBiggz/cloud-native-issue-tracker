@@ -39,22 +39,63 @@ const mimeTypes = {
   '.wasm': 'application/wasm'
 };
 
-// Mock user storage for local testing
-const users = [
-  {
-    userId: 'admin-001',
-    email: 'admin@example.com',
-    firstName: 'Admin',
-    lastName: 'User',
-    role: 'ADMIN',
-    status: 'ACTIVE',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    lastLoginAt: new Date().toISOString(),
-  }
-];
+// Local database for testing
+const fs = require('fs');
+const path = require('path');
 
-const sessions = new Map();
+// Database file path
+const DB_FILE = path.join(__dirname, 'data', 'local-db.json');
+
+// Load database
+function loadDatabase() {
+  try {
+    if (fs.existsSync(DB_FILE)) {
+      const data = fs.readFileSync(DB_FILE, 'utf8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('Error loading database:', error);
+  }
+  
+  // Return default database structure
+  return {
+    users: [
+      {
+        userId: 'admin-001',
+        email: 'admin@example.com',
+        firstName: 'Admin',
+        lastName: 'User',
+        role: 'ADMIN',
+        status: 'ACTIVE',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString(),
+      }
+    ],
+    sessions: [],
+    issues: []
+  };
+}
+
+// Save database
+function saveDatabase(db) {
+  try {
+    // Ensure data directory exists
+    const dataDir = path.dirname(DB_FILE);
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    
+    fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
+  } catch (error) {
+    console.error('Error saving database:', error);
+  }
+}
+
+// Initialize database
+let db = loadDatabase();
+console.log('📊 Local database loaded successfully');
+console.log(`📁 Database file: ${DB_FILE}`);
 
 // Create HTTP server
 const server = http.createServer((req, res) => {
@@ -100,15 +141,17 @@ function handleApiRequest(req, res, pathname) {
 
 // Handle authentication requests
 function handleAuthRequest(req, res, endpoint, method) {
-  if (endpoint === '/register' && method === 'POST') {
+  console.log(`Auth request: ${method} ${endpoint}`); // Debug logging
+  
+  if (endpoint === '/auth/register' && method === 'POST') {
     handleRegister(req, res);
-  } else if (endpoint === '/login' && method === 'POST') {
+  } else if (endpoint === '/auth/login' && method === 'POST') {
     handleLogin(req, res);
-  } else if (endpoint === '/refresh' && method === 'POST') {
+  } else if (endpoint === '/auth/refresh' && method === 'POST') {
     handleRefreshToken(req, res);
-  } else if (endpoint === '/me' && method === 'GET') {
+  } else if (endpoint === '/auth/me' && method === 'GET') {
     handleGetCurrentUser(req, res);
-  } else if (endpoint === '/logout' && method === 'POST') {
+  } else if (endpoint === '/auth/logout' && method === 'POST') {
     handleLogout(req, res);
   } else {
     sendResponse(res, {
@@ -146,7 +189,7 @@ function handleRegister(req, res) {
       }
 
       // Check if user already exists
-      const existingUser = users.find(u => u.email === data.email);
+      const existingUser = db.users.find(u => u.email === data.email);
       if (existingUser) {
         sendResponse(res, {
           statusCode: 409,
@@ -171,7 +214,9 @@ function handleRegister(req, res) {
         updatedAt: new Date().toISOString(),
       };
 
-      users.push(newUser);
+      // Add to database
+      db.users.push(newUser);
+      saveDatabase(db);
 
       // Generate mock tokens
       const token = 'mock-jwt-token-' + Date.now();
@@ -216,7 +261,7 @@ function handleLogin(req, res) {
       const data = JSON.parse(body);
       
       // Find user by email
-      const user = users.find(u => u.email === data.email);
+      const user = db.users.find(u => u.email === data.email);
       if (!user) {
         sendResponse(res, {
           statusCode: 401,
@@ -235,6 +280,9 @@ function handleLogin(req, res) {
       // Update last login
       user.lastLoginAt = new Date().toISOString();
       user.updatedAt = new Date().toISOString();
+      
+      // Save updated user
+      saveDatabase(db);
 
       // Generate mock tokens
       const token = 'mock-jwt-token-' + Date.now();
@@ -294,7 +342,7 @@ function handleRefreshToken(req, res) {
       // In real implementation, verify the refresh token
       
       // Find a user (in real implementation, extract user ID from token)
-      const user = users[0];
+      const user = db.users[0];
       if (!user) {
         sendResponse(res, {
           statusCode: 401,
@@ -356,7 +404,7 @@ function handleGetCurrentUser(req, res) {
 
   // For demo purposes, return the first user
   // In real implementation, verify JWT token and extract user ID
-  const user = users[0];
+  const user = db.users[0];
   if (!user) {
     sendResponse(res, {
       statusCode: 401,
@@ -400,10 +448,7 @@ function handleIssueRequest(req, res, endpoint, method) {
     response = {
       statusCode: 200,
       body: JSON.stringify({
-        items: [
-          { issueId: 'ISSUE-001', title: 'Sample Issue 1', status: 'OPEN', priority: 'MEDIUM' },
-          { issueId: 'ISSUE-002', title: 'Sample Issue 2', status: 'IN_PROGRESS', priority: 'HIGH' }
-        ],
+        items: db.issues || [],
         nextToken: null
       })
     };
@@ -414,14 +459,27 @@ function handleIssueRequest(req, res, endpoint, method) {
     });
     req.on('end', () => {
       const data = JSON.parse(body);
+      const newIssue = {
+        issueId: 'ISSUE-' + Date.now(),
+        title: data.title || 'New Issue',
+        description: data.description || '',
+        status: 'OPEN',
+        priority: data.priority || 'MEDIUM',
+        reporter: 'admin@example.com', // In real implementation, get from token
+        assignee: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        tags: data.tags || []
+      };
+      
+      // Add to database
+      if (!db.issues) db.issues = [];
+      db.issues.push(newIssue);
+      saveDatabase(db);
+      
       response = {
         statusCode: 201,
-        body: JSON.stringify({
-          issueId: 'ISSUE-' + Date.now(),
-          title: data.title || 'New Issue',
-          status: 'OPEN',
-          priority: data.priority || 'MEDIUM'
-        })
+        body: JSON.stringify(newIssue)
       };
       sendResponse(res, response);
     });

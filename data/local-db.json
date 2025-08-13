@@ -1,0 +1,42 @@
+{
+  "users": [
+    {
+      "userId": "admin-001",
+      "email": "admin@example.com",
+      "firstName": "Admin",
+      "lastName": "User",
+      "role": "ADMIN",
+      "status": "ACTIVE",
+      "createdAt": "2025-08-12T10:00:00.000Z",
+      "updatedAt": "2025-08-12T10:00:00.000Z",
+      "lastLoginAt": "2025-08-12T10:00:00.000Z"
+    }
+  ],
+  "sessions": [],
+  "issues": [
+    {
+      "issueId": "ISSUE-001",
+      "title": "Sample Issue 1",
+      "description": "This is a sample issue for testing",
+      "status": "OPEN",
+      "priority": "MEDIUM",
+      "reporter": "admin@example.com",
+      "assignee": null,
+      "createdAt": "2025-08-12T10:00:00.000Z",
+      "updatedAt": "2025-08-12T10:00:00.000Z",
+      "tags": ["sample", "test"]
+    },
+    {
+      "issueId": "ISSUE-002",
+      "title": "Sample Issue 2",
+      "description": "Another sample issue for testing",
+      "status": "IN_PROGRESS",
+      "priority": "HIGH",
+      "reporter": "admin@example.com",
+      "assignee": null,
+      "createdAt": "2025-08-12T10:00:00.000Z",
+      "updatedAt": "2025-08-12T10:00:00.000Z",
+      "tags": ["sample", "high-priority"]
+    }
+  ]
+}
