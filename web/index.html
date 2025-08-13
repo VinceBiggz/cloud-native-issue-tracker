@@ -62,6 +62,7 @@
             font-size: 14px;
             font-weight: 600;
             transition: transform 0.2s;
+            margin-right: 10px;
         }
         button:hover {
             transform: translateY(-2px);
@@ -93,6 +94,7 @@
         .status.success { background: #d4edda; color: #155724; }
         .status.error { background: #f8d7da; color: #721c24; }
         .status.info { background: #d1ecf1; color: #0c5460; }
+        .status.warning { background: #fff3cd; color: #856404; }
         .issues-list {
             max-height: 400px;
             overflow-y: auto;
@@ -113,6 +115,58 @@
             font-size: 12px;
             color: #666;
         }
+        .auth-section {
+            display: none;
+        }
+        .auth-section.active {
+            display: block;
+        }
+        .user-info {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .nav-tabs {
+            display: flex;
+            border-bottom: 2px solid #e1e5e9;
+            margin-bottom: 20px;
+        }
+        .nav-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .nav-tab.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+            font-weight: 600;
+        }
+        .nav-tab:hover {
+            background: #f8f9fa;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -122,128 +176,319 @@
         <p><strong>Author:</strong> Vincent Wachira | <strong>Date:</strong> 12-Aug-2025</p>
     </div>
 
-    <div class="container">
-        <!-- API Testing Panel -->
+    <!-- Authentication Section -->
+    <div id="authSection" class="auth-section active">
         <div class="card">
-            <h2>🔧 API Testing</h2>
-            <p>Test the Lambda handler endpoints locally</p>
+            <h2>🔐 Authentication</h2>
+            <p>Login or register to access the issue tracker</p>
             
-            <div class="form-group">
-                <label for="endpoint">Endpoint:</label>
-                <select id="endpoint">
-                    <option value="GET /issues">GET /issues - List Issues</option>
-                    <option value="POST /issues">POST /issues - Create Issue</option>
-                    <option value="GET /issues/123">GET /issues/123 - Get Issue</option>
-                    <option value="PUT /issues/123">PUT /issues/123 - Update Issue</option>
-                    <option value="DELETE /issues/123">DELETE /issues/123 - Delete Issue</option>
-                </select>
+            <div class="nav-tabs">
+                <div class="nav-tab active" onclick="switchTab('login')">Login</div>
+                <div class="nav-tab" onclick="switchTab('register')">Register</div>
             </div>
 
-            <div class="form-group">
-                <label for="requestBody">Request Body (for POST/PUT):</label>
-                <textarea id="requestBody" rows="4" placeholder='{"title": "Test Issue", "description": "Test Description"}'></textarea>
+            <!-- Login Tab -->
+            <div id="loginTab" class="tab-content active">
+                <div class="form-group">
+                    <label for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password:</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password">
+                </div>
+                <button onclick="login()">🔑 Login</button>
+                <button onclick="demoLogin()">🎭 Demo Login (Admin)</button>
             </div>
 
-            <button onclick="testEndpoint()">🚀 Test Endpoint</button>
-
-            <div id="apiResponse" class="response" style="display: none;"></div>
-        </div>
-
-        <!-- Issue Management Panel -->
-        <div class="card">
-            <h2>📋 Issue Management</h2>
-            <p>Create and manage issues through the UI</p>
-            
-            <div class="form-group">
-                <label for="issueTitle">Title:</label>
-                <input type="text" id="issueTitle" placeholder="Enter issue title">
+            <!-- Register Tab -->
+            <div id="registerTab" class="tab-content">
+                <div class="form-group">
+                    <label for="registerFirstName">First Name:</label>
+                    <input type="text" id="registerFirstName" placeholder="Enter your first name">
+                </div>
+                <div class="form-group">
+                    <label for="registerLastName">Last Name:</label>
+                    <input type="text" id="registerLastName" placeholder="Enter your last name">
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email:</label>
+                    <input type="email" id="registerEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password:</label>
+                    <input type="password" id="registerPassword" placeholder="Enter your password (min 8 chars)">
+                </div>
+                <div class="form-group">
+                    <label for="registerRole">Role:</label>
+                    <select id="registerRole">
+                        <option value="END_USER">End User</option>
+                        <option value="SUPPORT_STAFF">Support Staff</option>
+                        <option value="ADMIN">Admin</option>
+                    </select>
+                </div>
+                <button onclick="register()">📝 Register</button>
             </div>
 
-            <div class="form-group">
-                <label for="issueDescription">Description:</label>
-                <textarea id="issueDescription" rows="3" placeholder="Enter issue description"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="issuePriority">Priority:</label>
-                <select id="issuePriority">
-                    <option value="LOW">Low</option>
-                    <option value="MEDIUM" selected>Medium</option>
-                    <option value="HIGH">High</option>
-                    <option value="CRITICAL">Critical</option>
-                </select>
-            </div>
-
-            <button onclick="createIssue()">➕ Create Issue</button>
-            <button onclick="loadIssues()">🔄 Refresh Issues</button>
-
-            <div id="issuesList" class="issues-list"></div>
+            <div id="authResponse" class="response" style="display: none;"></div>
         </div>
     </div>
 
-    <!-- System Status Panel -->
-    <div class="card" style="margin-top: 30px;">
-        <h2>📊 System Status</h2>
-        <div id="systemStatus">
-            <p><span class="status success">✅ Lambda Handler Ready</span></p>
-            <p><span class="status info">ℹ️ Local Testing Mode</span></p>
-            <p><span class="status info">ℹ️ API Gateway Simulation</span></p>
+    <!-- Main Application Section -->
+    <div id="appSection" class="auth-section">
+        <!-- User Info -->
+        <div id="userInfo" class="user-info" style="display: none;">
+            <h3>👤 Welcome, <span id="userName">User</span>!</h3>
+            <p><strong>Role:</strong> <span id="userRole">User</span> | <strong>Email:</strong> <span id="userEmail">user@example.com</span></p>
+            <button onclick="logout()">🚪 Logout</button>
+        </div>
+
+        <div class="container">
+            <!-- API Testing Panel -->
+            <div class="card">
+                <h2>🔧 API Testing</h2>
+                <p>Test the Lambda handler endpoints locally</p>
+                
+                <div class="form-group">
+                    <label for="endpoint">Endpoint:</label>
+                    <select id="endpoint">
+                        <option value="GET /issues">GET /issues - List Issues</option>
+                        <option value="POST /issues">POST /issues - Create Issue</option>
+                        <option value="GET /issues/123">GET /issues/123 - Get Issue</option>
+                        <option value="PUT /issues/123">PUT /issues/123 - Update Issue</option>
+                        <option value="DELETE /issues/123">DELETE /issues/123 - Delete Issue</option>
+                        <option value="GET /auth/me">GET /auth/me - Get Current User</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="requestBody">Request Body (for POST/PUT):</label>
+                    <textarea id="requestBody" rows="4" placeholder='{"title": "Test Issue", "description": "Test Description"}'></textarea>
+                </div>
+
+                <button onclick="testEndpoint()">🚀 Test Endpoint</button>
+
+                <div id="apiResponse" class="response" style="display: none;"></div>
+            </div>
+
+            <!-- Issue Management Panel -->
+            <div class="card">
+                <h2>📋 Issue Management</h2>
+                <p>Create and manage issues through the UI</p>
+                
+                <div class="form-group">
+                    <label for="issueTitle">Title:</label>
+                    <input type="text" id="issueTitle" placeholder="Enter issue title">
+                </div>
+
+                <div class="form-group">
+                    <label for="issueDescription">Description:</label>
+                    <textarea id="issueDescription" rows="3" placeholder="Enter issue description"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="issuePriority">Priority:</label>
+                    <select id="issuePriority">
+                        <option value="LOW">Low</option>
+                        <option value="MEDIUM" selected>Medium</option>
+                        <option value="HIGH">High</option>
+                        <option value="CRITICAL">Critical</option>
+                    </select>
+                </div>
+
+                <button onclick="createIssue()">➕ Create Issue</button>
+                <button onclick="loadIssues()">🔄 Refresh Issues</button>
+
+                <div id="issuesList" class="issues-list"></div>
+            </div>
+        </div>
+
+        <!-- System Status Panel -->
+        <div class="card" style="margin-top: 30px;">
+            <h2>📊 System Status</h2>
+            <div id="systemStatus">
+                <p><span class="status success">✅ Lambda Handler Ready</span></p>
+                <p><span class="status info">ℹ️ Local Testing Mode</span></p>
+                <p><span class="status info">ℹ️ API Gateway Simulation</span></p>
+                <p><span class="status warning">⚠️ Authentication Required</span></p>
+            </div>
         </div>
     </div>
 
     <script>
-        // Simulate Lambda handler responses
-        const mockHandler = {
-            'GET /issues': () => ({
-                statusCode: 200,
-                body: JSON.stringify({
-                    items: [
-                        { issueId: 'ISSUE-001', title: 'Sample Issue 1', status: 'OPEN', priority: 'MEDIUM' },
-                        { issueId: 'ISSUE-002', title: 'Sample Issue 2', status: 'IN_PROGRESS', priority: 'HIGH' }
-                    ],
-                    nextToken: null
-                })
-            }),
-            'POST /issues': (body) => ({
-                statusCode: 201,
-                body: JSON.stringify({
-                    issueId: 'ISSUE-' + Date.now(),
-                    title: body?.title || 'New Issue',
-                    status: 'OPEN',
-                    priority: body?.priority || 'MEDIUM'
-                })
-            }),
-            'GET /issues/123': () => ({
-                statusCode: 200,
-                body: JSON.stringify({
-                    issueId: '123',
-                    title: 'Sample Issue',
-                    description: 'This is a sample issue for testing',
-                    status: 'OPEN',
-                    priority: 'MEDIUM'
-                })
-            }),
-            'PUT /issues/123': (body) => ({
-                statusCode: 200,
-                body: JSON.stringify({
-                    issueId: '123',
-                    title: body?.title || 'Updated Issue',
-                    status: 'UPDATED',
-                    priority: body?.priority || 'MEDIUM'
-                })
-            }),
-            'DELETE /issues/123': () => ({
-                statusCode: 204,
-                body: ''
-            })
-        };
-
+        // Global state
+        let currentUser = null;
+        let authToken = null;
         let issues = [
             { issueId: 'ISSUE-001', title: 'Sample Issue 1', description: 'This is a sample issue', status: 'OPEN', priority: 'MEDIUM' },
             { issueId: 'ISSUE-002', title: 'Sample Issue 2', description: 'Another sample issue', status: 'IN_PROGRESS', priority: 'HIGH' }
         ];
 
-        function testEndpoint() {
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            if (tabName === 'login') {
+                document.getElementById('loginTab').classList.add('active');
+            } else {
+                document.getElementById('registerTab').classList.add('active');
+            }
+        }
+
+        // Authentication functions
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showAuthResponse('Please enter both email and password', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentUser = data.data.user;
+                    authToken = data.data.token;
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('user', JSON.stringify(currentUser));
+                    showAuthResponse('Login successful!', 'success');
+                    setTimeout(() => {
+                        showApp();
+                    }, 1000);
+                } else {
+                    showAuthResponse(data.message || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showAuthResponse('Login failed: ' + error.message, 'error');
+            }
+        }
+
+        async function register() {
+            const firstName = document.getElementById('registerFirstName').value;
+            const lastName = document.getElementById('registerLastName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const role = document.getElementById('registerRole').value;
+
+            if (!firstName || !lastName || !email || !password) {
+                showAuthResponse('Please fill in all required fields', 'error');
+                return;
+            }
+
+            if (password.length < 8) {
+                showAuthResponse('Password must be at least 8 characters long', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ firstName, lastName, email, password, role })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentUser = data.data.user;
+                    authToken = data.data.token;
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('user', JSON.stringify(currentUser));
+                    showAuthResponse('Registration successful!', 'success');
+                    setTimeout(() => {
+                        showApp();
+                    }, 1000);
+                } else {
+                    showAuthResponse(data.message || 'Registration failed', 'error');
+                }
+            } catch (error) {
+                showAuthResponse('Registration failed: ' + error.message, 'error');
+            }
+        }
+
+        function demoLogin() {
+            // Simulate admin login for demo purposes
+            currentUser = {
+                userId: 'admin-001',
+                email: 'admin@example.com',
+                firstName: 'Admin',
+                lastName: 'User',
+                role: 'ADMIN',
+                status: 'ACTIVE'
+            };
+            authToken = 'demo-token-' + Date.now();
+            localStorage.setItem('authToken', authToken);
+            localStorage.setItem('user', JSON.stringify(currentUser));
+            showAuthResponse('Demo login successful!', 'success');
+            setTimeout(() => {
+                        showApp();
+                    }, 1000);
+        }
+
+        function logout() {
+            currentUser = null;
+            authToken = null;
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            showAuth();
+        }
+
+        function showAuthResponse(message, type) {
+            const responseDiv = document.getElementById('authResponse');
+            responseDiv.style.display = 'block';
+            responseDiv.className = `response ${type === 'error' ? 'error-message' : 'success-message'}`;
+            responseDiv.textContent = message;
+        }
+
+        function showAuth() {
+            document.getElementById('authSection').classList.add('active');
+            document.getElementById('appSection').classList.remove('active');
+        }
+
+        function showApp() {
+            document.getElementById('authSection').classList.remove('active');
+            document.getElementById('appSection').classList.add('active');
+            updateUserInfo();
+            displayIssues();
+        }
+
+        function updateUserInfo() {
+            if (currentUser) {
+                document.getElementById('userInfo').style.display = 'block';
+                document.getElementById('userName').textContent = `${currentUser.firstName} ${currentUser.lastName}`;
+                document.getElementById('userRole').textContent = currentUser.role;
+                document.getElementById('userEmail').textContent = currentUser.email;
+            }
+        }
+
+        // Check authentication on page load
+        function checkAuth() {
+            const savedToken = localStorage.getItem('authToken');
+            const savedUser = localStorage.getItem('user');
+            
+            if (savedToken && savedUser) {
+                authToken = savedToken;
+                currentUser = JSON.parse(savedUser);
+                showApp();
+            } else {
+                showAuth();
+            }
+        }
+
+        // API testing with authentication
+        async function testEndpoint() {
             const endpoint = document.getElementById('endpoint').value;
             const requestBody = document.getElementById('requestBody').value;
             
@@ -251,21 +496,34 @@
             responseDiv.style.display = 'block';
             
             try {
-                const handler = mockHandler[endpoint];
-                if (!handler) {
-                    responseDiv.innerHTML = `❌ Error: Unknown endpoint "${endpoint}"`;
-                    return;
+                const headers = { 'Content-Type': 'application/json' };
+                if (authToken) {
+                    headers['Authorization'] = `Bearer ${authToken}`;
                 }
 
-                const body = requestBody ? JSON.parse(requestBody) : null;
-                const result = handler(body);
+                let url = '/api' + endpoint.split(' ')[1];
+                let method = endpoint.split(' ')[0];
+                let body = null;
+
+                if (method === 'POST' || method === 'PUT') {
+                    body = requestBody ? JSON.parse(requestBody) : null;
+                }
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: headers,
+                    body: body ? JSON.stringify(body) : null
+                });
+
+                const data = await response.json();
                 
-                responseDiv.innerHTML = `✅ Status: ${result.statusCode}\n📄 Response: ${result.body}`;
+                responseDiv.innerHTML = `✅ Status: ${response.status}\n📄 Response: ${JSON.stringify(data, null, 2)}`;
             } catch (error) {
                 responseDiv.innerHTML = `❌ Error: ${error.message}`;
             }
         }
 
+        // Issue management functions
         function createIssue() {
             const title = document.getElementById('issueTitle').value;
             const description = document.getElementById('issueDescription').value;
@@ -282,7 +540,8 @@
                 description: description,
                 status: 'OPEN',
                 priority: priority,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                reporter: currentUser ? currentUser.email : 'anonymous'
             };
 
             issues.push(newIssue);
@@ -310,7 +569,8 @@
                     <div class="issue-meta">
                         ID: ${issue.issueId} | 
                         Status: <span class="status ${issue.status === 'OPEN' ? 'success' : 'info'}">${issue.status}</span> | 
-                        Priority: ${issue.priority}
+                        Priority: ${issue.priority} | 
+                        Reporter: ${issue.reporter || 'Unknown'}
                     </div>
                     ${issue.description ? `<div style="margin-top: 5px; font-size: 14px;">${issue.description}</div>` : ''}
                 `;
@@ -318,8 +578,8 @@
             });
         }
 
-        // Initialize the interface
-        displayIssues();
+        // Initialize the application
+        checkAuth();
     </script>
 </body>
 </html>

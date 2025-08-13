@@ -39,6 +39,23 @@ const mimeTypes = {
   '.wasm': 'application/wasm'
 };
 
+// Mock user storage for local testing
+const users = [
+  {
+    userId: 'admin-001',
+    email: 'admin@example.com',
+    firstName: 'Admin',
+    lastName: 'User',
+    role: 'ADMIN',
+    status: 'ACTIVE',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    lastLoginAt: new Date().toISOString(),
+  }
+];
+
+const sessions = new Map();
+
 // Create HTTP server
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
@@ -71,6 +88,311 @@ function handleApiRequest(req, res, pathname) {
   const method = req.method;
   const endpoint = pathname.replace('/api', '');
   
+  // Handle authentication endpoints
+  if (endpoint.startsWith('/auth/')) {
+    handleAuthRequest(req, res, endpoint, method);
+    return;
+  }
+  
+  // Handle issue endpoints
+  handleIssueRequest(req, res, endpoint, method);
+}
+
+// Handle authentication requests
+function handleAuthRequest(req, res, endpoint, method) {
+  if (endpoint === '/register' && method === 'POST') {
+    handleRegister(req, res);
+  } else if (endpoint === '/login' && method === 'POST') {
+    handleLogin(req, res);
+  } else if (endpoint === '/refresh' && method === 'POST') {
+    handleRefreshToken(req, res);
+  } else if (endpoint === '/me' && method === 'GET') {
+    handleGetCurrentUser(req, res);
+  } else if (endpoint === '/logout' && method === 'POST') {
+    handleLogout(req, res);
+  } else {
+    sendResponse(res, {
+      statusCode: 404,
+      body: JSON.stringify({
+        success: false,
+        error: 'Endpoint not found',
+        message: `Unknown auth endpoint: ${method} ${endpoint}`,
+      })
+    });
+  }
+}
+
+// Handle user registration
+function handleRegister(req, res) {
+  let body = '';
+  req.on('data', chunk => {
+    body += chunk.toString();
+  });
+  req.on('end', () => {
+    try {
+      const data = JSON.parse(body);
+      
+      // Validate required fields
+      if (!data.email || !data.password || !data.firstName || !data.lastName) {
+        sendResponse(res, {
+          statusCode: 400,
+          body: JSON.stringify({
+            success: false,
+            error: 'Validation error',
+            message: 'All required fields must be provided',
+          })
+        });
+        return;
+      }
+
+      // Check if user already exists
+      const existingUser = users.find(u => u.email === data.email);
+      if (existingUser) {
+        sendResponse(res, {
+          statusCode: 409,
+          body: JSON.stringify({
+            success: false,
+            error: 'User already exists',
+            message: 'A user with this email already exists',
+          })
+        });
+        return;
+      }
+
+      // Create new user
+      const newUser = {
+        userId: 'user-' + Date.now(),
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        role: data.role || 'END_USER',
+        status: 'PENDING_VERIFICATION',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      users.push(newUser);
+
+      // Generate mock tokens
+      const token = 'mock-jwt-token-' + Date.now();
+      const refreshToken = 'mock-refresh-token-' + Date.now();
+
+      const authResponse = {
+        user: newUser,
+        token,
+        refreshToken,
+        expiresIn: 24 * 60 * 60, // 24 hours in seconds
+      };
+
+      sendResponse(res, {
+        statusCode: 201,
+        body: JSON.stringify({
+          success: true,
+          data: authResponse,
+          message: 'User registered successfully',
+        })
+      });
+    } catch (error) {
+      sendResponse(res, {
+        statusCode: 400,
+        body: JSON.stringify({
+          success: false,
+          error: 'Invalid JSON',
+          message: 'Invalid request body',
+        })
+      });
+    }
+  });
+}
+
+// Handle user login
+function handleLogin(req, res) {
+  let body = '';
+  req.on('data', chunk => {
+    body += chunk.toString();
+  });
+  req.on('end', () => {
+    try {
+      const data = JSON.parse(body);
+      
+      // Find user by email
+      const user = users.find(u => u.email === data.email);
+      if (!user) {
+        sendResponse(res, {
+          statusCode: 401,
+          body: JSON.stringify({
+            success: false,
+            error: 'Invalid credentials',
+            message: 'Invalid email or password',
+          })
+        });
+        return;
+      }
+
+      // For demo purposes, accept any password
+      // In real implementation, verify password hash
+      
+      // Update last login
+      user.lastLoginAt = new Date().toISOString();
+      user.updatedAt = new Date().toISOString();
+
+      // Generate mock tokens
+      const token = 'mock-jwt-token-' + Date.now();
+      const refreshToken = 'mock-refresh-token-' + Date.now();
+
+      const authResponse = {
+        user,
+        token,
+        refreshToken,
+        expiresIn: 24 * 60 * 60, // 24 hours in seconds
+      };
+
+      sendResponse(res, {
+        statusCode: 200,
+        body: JSON.stringify({
+          success: true,
+          data: authResponse,
+          message: 'Login successful',
+        })
+      });
+    } catch (error) {
+      sendResponse(res, {
+        statusCode: 400,
+        body: JSON.stringify({
+          success: false,
+          error: 'Invalid JSON',
+          message: 'Invalid request body',
+        })
+      });
+    }
+  });
+}
+
+// Handle token refresh
+function handleRefreshToken(req, res) {
+  let body = '';
+  req.on('data', chunk => {
+    body += chunk.toString();
+  });
+  req.on('end', () => {
+    try {
+      const data = JSON.parse(body);
+      
+      if (!data.refreshToken) {
+        sendResponse(res, {
+          statusCode: 400,
+          body: JSON.stringify({
+            success: false,
+            error: 'Missing refresh token',
+            message: 'Refresh token is required',
+          })
+        });
+        return;
+      }
+
+      // For demo purposes, accept any refresh token
+      // In real implementation, verify the refresh token
+      
+      // Find a user (in real implementation, extract user ID from token)
+      const user = users[0];
+      if (!user) {
+        sendResponse(res, {
+          statusCode: 401,
+          body: JSON.stringify({
+            success: false,
+            error: 'Invalid token',
+            message: 'Invalid refresh token',
+          })
+        });
+        return;
+      }
+
+      // Generate new tokens
+      const token = 'mock-jwt-token-' + Date.now();
+      const refreshToken = 'mock-refresh-token-' + Date.now();
+
+      const authResponse = {
+        user,
+        token,
+        refreshToken,
+        expiresIn: 24 * 60 * 60, // 24 hours in seconds
+      };
+
+      sendResponse(res, {
+        statusCode: 200,
+        body: JSON.stringify({
+          success: true,
+          data: authResponse,
+          message: 'Token refreshed successfully',
+        })
+      });
+    } catch (error) {
+      sendResponse(res, {
+        statusCode: 400,
+        body: JSON.stringify({
+          success: false,
+          error: 'Invalid JSON',
+          message: 'Invalid request body',
+        })
+      });
+    }
+  });
+}
+
+// Handle get current user
+function handleGetCurrentUser(req, res) {
+  const token = extractTokenFromHeaders(req);
+  if (!token) {
+    sendResponse(res, {
+      statusCode: 401,
+      body: JSON.stringify({
+        success: false,
+        error: 'Missing token',
+        message: 'Authorization token is required',
+      })
+    });
+    return;
+  }
+
+  // For demo purposes, return the first user
+  // In real implementation, verify JWT token and extract user ID
+  const user = users[0];
+  if (!user) {
+    sendResponse(res, {
+      statusCode: 401,
+      body: JSON.stringify({
+        success: false,
+        error: 'Invalid token',
+        message: 'Invalid authorization token',
+      })
+    });
+    return;
+  }
+
+  sendResponse(res, {
+    statusCode: 200,
+    body: JSON.stringify({
+      success: true,
+      data: user,
+      message: 'User retrieved successfully',
+    })
+  });
+}
+
+// Handle user logout
+function handleLogout(req, res) {
+  // In real implementation, invalidate the token
+  sendResponse(res, {
+    statusCode: 200,
+    body: JSON.stringify({
+      success: true,
+      message: 'Logout successful',
+    })
+  });
+}
+
+// Handle issue requests
+function handleIssueRequest(req, res, endpoint, method) {
   // Simulate Lambda handler responses
   let response;
   
@@ -155,6 +477,15 @@ function handleApiRequest(req, res, pathname) {
   sendResponse(res, response);
 }
 
+// Extract JWT token from request headers
+function extractTokenFromHeaders(req) {
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+  return authHeader.substring(7);
+}
+
 // Send API response
 function sendResponse(res, response) {
   res.writeHead(response.statusCode, {
@@ -216,6 +547,11 @@ server.listen(PORT, () => {
   console.log(`📊 Author: Vincent Wachira | Version: v1.0.0 | Date: 12-Aug-2025`);
   console.log('');
   console.log('Available endpoints:');
+  console.log(`  POST http://localhost:${PORT}/api/auth/register`);
+  console.log(`  POST http://localhost:${PORT}/api/auth/login`);
+  console.log(`  POST http://localhost:${PORT}/api/auth/refresh`);
+  console.log(`  GET  http://localhost:${PORT}/api/auth/me`);
+  console.log(`  POST http://localhost:${PORT}/api/auth/logout`);
   console.log(`  GET  http://localhost:${PORT}/api/issues`);
   console.log(`  POST http://localhost:${PORT}/api/issues`);
   console.log(`  GET  http://localhost:${PORT}/api/issues/{id}`);
