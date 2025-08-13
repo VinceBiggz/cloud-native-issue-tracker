@@ -1,229 +1,426 @@
-﻿# Cloud-Native Issue Tracker
+﻿# 🚀 Cloud-Native Issue Tracker
 
-A fully containerized, serverless issue tracking platform built with AWS Lambda, DynamoDB, and API Gateway, designed for enterprise-scale operations. This project integrates with Slack and email for real-time notifications, supports role-based access, and includes CI/CD pipelines via GitHub Actions.
+> **A fully containerized, serverless issue tracking platform built with AWS Lambda, DynamoDB, and API Gateway**
+
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+[![Node.js](https://img.shields.io/badge/Node.js-20.x-green.svg)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5.4-blue.svg)](https://www.typescriptlang.org/)
+[![AWS CDK](https://img.shields.io/badge/AWS%20CDK-2.x-orange.svg)](https://aws.amazon.com/cdk/)
+
+## 📋 Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Development](#development)
+- [Deployment](#deployment)
+- [API Documentation](#api-documentation)
+- [Contributing](#contributing)
+- [License](#license)
+
+## 🎯 Overview
+
+The Cloud-Native Issue Tracker is a modern, scalable issue tracking system designed for enterprise-scale operations. Built with serverless architecture on AWS, it provides real-time issue management, user authentication, and comprehensive reporting capabilities.
+
+### Key Highlights
+
+- **🔐 Secure Authentication**: JWT-based authentication with role-based access control
+- **📊 Real-time Dashboard**: Live metrics and issue tracking
+- **🔧 API-First Design**: RESTful API with comprehensive documentation
+- **☁️ Serverless Architecture**: Built on AWS Lambda, DynamoDB, and API Gateway
+- **🛡️ Enterprise Security**: WAF protection, encryption, and audit logging
+- **📱 Responsive UI**: Modern, mobile-friendly interface
+
+## ✨ Features
+
+### 🔐 Authentication & User Management
+- **User Registration & Login**: Secure JWT-based authentication
+- **Role-Based Access Control**: Admin, Support Staff, and End User roles
+- **Session Management**: Secure token refresh and logout
+- **Password Security**: Bcrypt hashing with configurable requirements
+
+### 📋 Issue Management
+- **Create & Track Issues**: Full CRUD operations for issue management
+- **Priority Levels**: Low, Medium, High, Critical priority classification
+- **Status Tracking**: Open, In Progress, Resolved, Closed, Reopened
+- **Assignment & Ownership**: Assign issues to team members
+- **Tags & Categories**: Flexible issue categorization
+
+### 📊 Dashboard & Analytics
+- **Real-time Metrics**: Live issue statistics and trends
+- **User Activity**: Track user engagement and productivity
+- **Performance Monitoring**: System health and response times
+- **Custom Reports**: Generate detailed issue reports
+
+### 🔧 API & Integration
+- **RESTful API**: Comprehensive API with OpenAPI documentation
+- **Webhook Support**: Real-time notifications for external systems
+- **Slack Integration**: Direct issue updates to Slack channels
+- **Email Notifications**: Automated email alerts for issue updates
+
+### 🛡️ Security & Compliance
+- **AWS WAF Protection**: Web application firewall
+- **Data Encryption**: At-rest and in-transit encryption
+- **Audit Logging**: Comprehensive activity tracking
+- **Rate Limiting**: API protection against abuse
 
 ## 🏗️ Architecture
 
-- **API Gateway**: HTTP API with CORS support
-- **Lambda**: Node.js 20.x runtime with TypeScript
-- **DynamoDB**: Serverless database with pay-per-request billing
-- **CDK**: Infrastructure as Code with TypeScript
-- **Monorepo**: npm workspaces for organized development
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   API Gateway   │    │   Lambda        │
+│   (React/Vue)   │◄──►│   (AWS)         │◄──►│   Functions     │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                                │                       │
+                                ▼                       ▼
+                       ┌─────────────────┐    ┌─────────────────┐
+                       │   DynamoDB      │    │   CloudWatch    │
+                       │   (Database)    │    │   (Monitoring)  │
+                       └─────────────────┘    └─────────────────┘
+                                │
+                                ▼
+                       ┌─────────────────┐
+                       │   S3            │
+                       │   (File Storage)│
+                       └─────────────────┘
+```
+
+### Architecture Components
+
+- **Frontend**: Modern web interface with responsive design
+- **API Gateway**: HTTP API with CORS and authentication
+- **Lambda Functions**: Serverless compute for business logic
+- **DynamoDB**: NoSQL database for data persistence
+- **CloudWatch**: Monitoring, logging, and alerting
+- **S3**: File storage for attachments and static assets
+
+## 🛠️ Tech Stack
+
+### Backend
+- **Runtime**: Node.js 20.x
+- **Language**: TypeScript 5.5.4
+- **Framework**: AWS CDK 2.x
+- **Database**: Amazon DynamoDB
+- **Compute**: AWS Lambda
+- **API**: Amazon API Gateway
+- **Authentication**: JWT with bcrypt
+
+### Frontend
+- **Language**: HTML5, CSS3, JavaScript (ES6+)
+- **Styling**: Custom CSS with responsive design
+- **Build Tools**: Webpack (planned)
+- **Testing**: Jest (planned)
+
+### DevOps & Tools
+- **Infrastructure**: AWS CDK
+- **CI/CD**: GitHub Actions (planned)
+- **Monitoring**: CloudWatch, X-Ray
+- **Security**: AWS WAF, Secrets Manager
+- **Testing**: Jest, Playwright (planned)
 
 ## 📁 Project Structure
 
 ```
 cloud-native-issue-tracker/
-├── infra/                    # AWS CDK Infrastructure
-│   ├── bin/                  # CDK app entry point
-│   ├── lib/                  # CDK stack definitions
-│   ├── package.json          # CDK dependencies
-│   └── tsconfig.json         # TypeScript config
-├── services/
-│   └── api/                  # Lambda API service
-│       ├── src/              # Lambda handler source
-│       ├── package.json      # API dependencies
-│       └── tsconfig.json     # TypeScript config
-├── packages/
-│   └── shared/               # Shared utilities and types
-│       ├── src/              # Shared source code
-│       ├── package.json      # Shared dependencies
-│       └── tsconfig.json     # TypeScript config
-├── .github/workflows/        # CI/CD pipelines
-├── package.json              # Root workspace config
-└── README.md                 # This file
+├── 📁 infra/                    # AWS CDK Infrastructure
+│   ├── 📁 bin/                  # CDK App Entry Point
+│   ├── 📁 lib/                  # CDK Stack Definitions
+│   ├── 📁 test/                 # Infrastructure Tests
+│   └── 📄 package.json          # Infrastructure Dependencies
+├── 📁 services/                 # Lambda Services
+│   ├── 📁 api/                  # Main API Handler
+│   │   ├── 📁 src/              # TypeScript Source
+│   │   └── 📄 package.json      # API Dependencies
+│   └── 📁 auth/                 # Authentication Handler
+│       ├── 📁 src/              # TypeScript Source
+│       └── 📄 package.json      # Auth Dependencies
+├── 📁 packages/                 # Shared Packages
+│   └── 📁 shared/               # Shared Types & Utilities
+│       ├── 📁 src/              # TypeScript Source
+│       └── 📄 package.json      # Shared Dependencies
+├── 📁 web/                      # Frontend Application
+│   ├── 📁 styles/               # CSS Stylesheets
+│   │   └── 📄 main.css          # Main Stylesheet
+│   ├── 📁 js/                   # JavaScript Modules
+│   │   └── 📄 app.js            # Main Application Logic
+│   └── 📄 index.html            # Main HTML File
+├── 📁 config/                   # Configuration Files
+│   ├── 📄 development.js        # Development Config
+│   └── 📄 production.js         # Production Config
+├── 📁 data/                     # Local Data Storage
+│   └── 📄 local-db.json         # Local Database
+├── 📄 server.js                 # Local Development Server
+├── 📄 package.json              # Root Package Configuration
+└── 📄 README.md                 # Project Documentation
 ```
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- **Node.js**: 20+ (22.x recommended)
-- **npm**: 10+ (comes with Node.js)
-- **AWS CLI**: For deployment (optional for local testing)
-- **AWS CDK**: For infrastructure deployment
+- **Node.js**: Version 20.x or higher
+- **npm**: Version 10.x or higher
+- **AWS CLI**: Configured with appropriate credentials
+- **Git**: For version control
 
-### Local Testing with Web Interface
+### Installation
 
-The project includes a beautiful web interface for testing all functionality locally:
-
-1. **Start the development server**:
-   ```bash
-   npm run dev
-   ```
-
-2. **Open your browser** and go to: `http://localhost:3000`
-
-3. **Test the features**:
-   - 🔧 **API Testing Panel**: Test all Lambda endpoints
-   - 📋 **Issue Management**: Create and manage issues
-   - 📊 **System Status**: View application status
-
-### Local Development
-
-1. **Clone and Install**:
+1. **Clone the repository**
    ```bash
    git clone https://github.com/VinceBiggz/cloud-native-issue-tracker.git
    cd cloud-native-issue-tracker
+   ```
+
+2. **Install dependencies**
+   ```bash
    npm install
    ```
 
-2. **Build All Packages**:
+3. **Build the project**
    ```bash
    npm run build
    ```
 
-3. **Test Locally**:
+4. **Start local development server**
    ```bash
-   # Test Lambda handler directly
-   node test-local.js
-   
-   # Start web interface (recommended)
    npm run dev
-   # Then open http://localhost:3000 in your browser
    ```
 
-4. **Validate Infrastructure**:
-   ```bash
-   npm run synth
+5. **Open your browser**
+   ```
+   http://localhost:3000
    ```
 
-### Local Testing Results
+### Local Development
 
-The local test script validates all API endpoints:
+The project includes a comprehensive local development environment:
 
-```
-🧪 Testing Lambda Handler Locally
-
-📝 Testing: GET /issues
-✅ Status: 200
-📄 Response: {"items":[],"nextToken":null}
-
-📝 Testing: POST /issues
-✅ Status: 201
-📄 Response: {"issueId":"demo","status":"OPEN"}
-
-📝 Testing: GET /issues/123
-✅ Status: 200
-📄 Response: {"issueId":"123","status":"OPEN"}
-
-📝 Testing: PUT /issues/123
-✅ Status: 200
-📄 Response: {"issueId":"123","status":"UPDATED"}
-
-📝 Testing: DELETE /issues/123
-✅ Status: 204
-📄 Response:
-
-📝 Testing: GET /unknown
-✅ Status: 404
-📄 Response: {"message":"Not Found"}
-
-🎉 Local testing complete!
-```
-
-## 🛠️ Available Scripts
-
-### Root Level
-- `npm run build` - Build all workspaces
-- `npm run clean` - Clean all build artifacts
-- `npm run fmt` - Format code with Prettier
-- `npm run lint` - Run ESLint checks
-- `npm run lint:fix` - Fix ESLint issues automatically
-- `npm run dev` - Start local development server
-- `npm run test:local` - Test Lambda handler locally
-- `npm run synth` - Synthesize CDK CloudFormation
-- `npm run deploy` - Deploy to AWS
-- `npm run diff` - Show CDK diff
-- `npm run bootstrap` - Bootstrap CDK environment
-
-### Individual Workspaces
-- `npm run build -w infra` - Build infrastructure
-- `npm run build -w services/api` - Build API service
-- `npm run build -w packages/shared` - Build shared package
-
-## 🌐 API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/issues` | List all issues |
-| POST | `/issues` | Create new issue |
-| GET | `/issues/{id}` | Get specific issue |
-| PUT | `/issues/{id}` | Update issue |
-| DELETE | `/issues/{id}` | Delete issue |
-
-## 🚀 Deployment
-
-### Prerequisites
-- AWS CLI configured with appropriate credentials
-- CDK bootstrapped in your AWS account
-
-### Deploy to AWS
-```bash
-# Bootstrap CDK (first time only)
-npm run bootstrap
-
-# Deploy the stack
-npm run deploy
-```
-
-### Environment Variables
-- `CDK_DEFAULT_ACCOUNT`: AWS Account ID
-- `CDK_DEFAULT_REGION`: AWS Region (e.g., us-east-1)
+- **Local Server**: Node.js server with API simulation
+- **Local Database**: JSON-based data storage
+- **Hot Reload**: Automatic file watching and reloading
+- **Mock Services**: Simulated AWS services for development
 
 ## 🔧 Development
 
-### Adding New Features
-1. Create feature branch: `git checkout -b feature/new-feature`
-2. Implement changes in appropriate workspace
-3. Update tests and documentation
-4. Build and test locally: `npm run build && node test-local.js`
-5. Commit and push: `git commit -m "feat: add new feature"`
+### Available Scripts
 
-### Code Quality
-- TypeScript strict mode enabled
-- ESLint configuration (to be added)
-- Prettier formatting
-- Conventional commits
+```bash
+# Build all packages
+npm run build
 
-## 📊 Infrastructure
+# Start development server
+npm run dev
 
-The CDK stack creates:
-- **DynamoDB Table**: `Issues` with `issueId` as partition key
-- **Lambda Function**: API handler with 256MB memory, 10s timeout
-- **API Gateway**: HTTP API with CORS enabled
-- **IAM Roles**: Least privilege access to DynamoDB
-- **CloudWatch**: X-Ray tracing enabled
+# Run tests
+npm test
 
-## 🔒 Security
+# Lint code
+npm run lint
 
-- IAM roles with least privilege
-- CORS configured for web access
-- DynamoDB encryption at rest
-- Lambda execution role isolation
+# Format code
+npm run fmt
 
-## 📈 Monitoring
+# Deploy to AWS
+npm run deploy
 
-- CloudWatch logs for Lambda
-- X-Ray tracing for request tracking
-- API Gateway metrics
-- DynamoDB CloudWatch metrics
+# Synthesize CDK
+npm run synth
+```
+
+### Development Workflow
+
+1. **Feature Development**
+   - Create feature branch from `main`
+   - Implement changes with proper testing
+   - Update documentation
+   - Submit pull request
+
+2. **Code Quality**
+   - Follow TypeScript best practices
+   - Use ESLint for code linting
+   - Maintain test coverage above 80%
+   - Document all public APIs
+
+3. **Testing Strategy**
+   - Unit tests for business logic
+   - Integration tests for API endpoints
+   - E2E tests for user workflows
+   - Infrastructure tests for CDK stacks
+
+### Environment Configuration
+
+The project supports multiple environments:
+
+- **Development**: Local development with mock services
+- **Staging**: Pre-production testing environment
+- **Production**: Live production environment
+
+Configuration files are located in the `config/` directory.
+
+## 🚀 Deployment
+
+### AWS Deployment
+
+1. **Bootstrap CDK** (first time only)
+   ```bash
+   npm run bootstrap
+   ```
+
+2. **Deploy to AWS**
+   ```bash
+   npm run deploy
+   ```
+
+3. **Verify deployment**
+   ```bash
+   npm run diff
+   ```
+
+### Environment Variables
+
+Set the following environment variables for production:
+
+```bash
+AWS_REGION=us-east-1
+AWS_ACCOUNT_ID=your-account-id
+DOMAIN_NAME=your-domain.com
+JWT_SECRET_ARN=arn:aws:secretsmanager:...
+SLACK_WEBHOOK_URL=https://hooks.slack.com/...
+```
+
+### CI/CD Pipeline
+
+The project includes GitHub Actions for automated deployment:
+
+- **Build**: Compile TypeScript and run tests
+- **Test**: Execute unit and integration tests
+- **Deploy**: Deploy to AWS using CDK
+- **Monitor**: Verify deployment health
+
+## 📚 API Documentation
+
+### Authentication Endpoints
+
+#### POST /auth/register
+Register a new user account.
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "securepassword123",
+  "firstName": "John",
+  "lastName": "Doe",
+  "role": "END_USER"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "user": {
+      "userId": "user-123",
+      "email": "user@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "role": "END_USER",
+      "status": "PENDING_VERIFICATION"
+    },
+    "token": "jwt-token",
+    "refreshToken": "refresh-token",
+    "expiresIn": 86400
+  }
+}
+```
+
+#### POST /auth/login
+Authenticate user and receive access token.
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "securepassword123"
+}
+```
+
+### Issue Management Endpoints
+
+#### GET /issues
+Retrieve list of issues with pagination.
+
+**Query Parameters:**
+- `page`: Page number (default: 1)
+- `limit`: Items per page (default: 10)
+- `status`: Filter by status
+- `priority`: Filter by priority
+
+#### POST /issues
+Create a new issue.
+
+**Request Body:**
+```json
+{
+  "title": "Bug Report",
+  "description": "Application crashes on login",
+  "priority": "HIGH",
+  "tags": ["bug", "critical"]
+}
+```
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test locally
-5. Submit a pull request
+We welcome contributions! Please follow these guidelines:
+
+1. **Fork the repository**
+2. **Create a feature branch**
+3. **Make your changes**
+4. **Add tests for new functionality**
+5. **Update documentation**
+6. **Submit a pull request**
+
+### Development Standards
+
+- **Code Style**: Follow TypeScript and ESLint rules
+- **Testing**: Maintain 80%+ test coverage
+- **Documentation**: Update README and API docs
+- **Commits**: Use conventional commit messages
+
+### Commit Message Format
+
+```
+type(scope): description
+
+[optional body]
+
+[optional footer]
+```
+
+Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
 ## 📄 License
 
-This project is licensed under the ISC License.
+This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
 
-## 🔗 Links
+## 👨‍💻 Author
 
-- **Repository**: https://github.com/VinceBiggz/cloud-native-issue-tracker
-- **Issues**: https://github.com/VinceBiggz/cloud-native-issue-tracker/issues
-- **AWS CDK**: https://docs.aws.amazon.com/cdk/
-- **AWS Lambda**: https://docs.aws.amazon.com/lambda/
+**Vincent Wachira**
+- GitHub: [@VinceBiggz](https://github.com/VinceBiggz)
+- Email: [contact@vincentwachira.com]
+
+## 🙏 Acknowledgments
+
+- AWS CDK team for the excellent infrastructure framework
+- The open-source community for inspiration and tools
+- All contributors who help improve this project
+
+---
+
+**Version**: 1.0.0  
+**Last Updated**: 12-Aug-2025  
+**Status**: Active Development

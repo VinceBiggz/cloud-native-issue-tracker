@@ -40,8 +40,6 @@ const mimeTypes = {
 };
 
 // Local database for testing
-const fs = require('fs');
-const path = require('path');
 
 // Database file path
 const DB_FILE = path.join(__dirname, 'data', 'local-db.json');
