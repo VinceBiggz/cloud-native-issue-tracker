@@ -30,13 +30,24 @@ export const projectName = "cloud-issue-tracker";
 export const APP_VERSION = "1.0.0";
 
 /**
- * Default API response structure
+ * User roles enumeration
+ * Defines the different user roles in the system
  */
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
+export enum UserRole {
+  ADMIN = "ADMIN",
+  SUPPORT_STAFF = "SUPPORT_STAFF",
+  END_USER = "END_USER",
+}
+
+/**
+ * User status enumeration
+ * Defines the possible states a user account can be in
+ */
+export enum UserStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  SUSPENDED = "SUSPENDED",
+  PENDING_VERIFICATION = "PENDING_VERIFICATION",
 }
 
 /**
@@ -62,6 +73,81 @@ export enum IssuePriority {
 }
 
 /**
+ * User interface definition
+ * Represents the structure of a user in the system
+ */
+export interface User {
+  userId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  status: UserStatus;
+  createdAt: string;
+  updatedAt: string;
+  lastLoginAt?: string;
+  avatar?: string;
+  phone?: string;
+  organization?: string;
+}
+
+/**
+ * User registration request interface
+ * Data required to register a new user
+ */
+export interface UserRegistrationRequest {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  role?: UserRole;
+  phone?: string;
+  organization?: string;
+}
+
+/**
+ * User login request interface
+ * Data required to authenticate a user
+ */
+export interface UserLoginRequest {
+  email: string;
+  password: string;
+}
+
+/**
+ * Authentication response interface
+ * Response data after successful authentication
+ */
+export interface AuthResponse {
+  user: User;
+  token: string;
+  refreshToken: string;
+  expiresIn: number;
+}
+
+/**
+ * JWT payload interface
+ * Data stored in the JWT token
+ */
+export interface JWTPayload {
+  userId: string;
+  email: string;
+  role: UserRole;
+  iat: number;
+  exp: number;
+}
+
+/**
+ * API response structure
+ */
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+/**
  * Issue type definition
  * Represents the structure of an issue in the system
  */
@@ -76,4 +162,28 @@ export interface Issue {
   createdAt: string;
   updatedAt: string;
   tags?: string[];
+}
+
+/**
+ * Pagination interface
+ * For paginated API responses
+ */
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+/**
+ * Paginated response interface
+ */
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
 }
