@@ -12,5 +12,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
       - run: npm install -ws
+      - run: npm run build
+      - run: npm run lint
