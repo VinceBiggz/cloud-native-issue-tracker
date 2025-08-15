@@ -21,6 +21,17 @@
       "createdAt": "2025-08-13T12:56:15.900Z",
       "updatedAt": "2025-08-13T12:56:28.318Z",
       "lastLoginAt": "2025-08-13T12:56:28.318Z"
+    },
+    {
+      "userId": "user-1755089984474",
+      "email": "wachirakungu@gmail.com",
+      "firstName": "Vincent",
+      "lastName": "Kung'u",
+      "role": "ADMIN",
+      "status": "PENDING_VERIFICATION",
+      "createdAt": "2025-08-13T12:59:44.474Z",
+      "updatedAt": "2025-08-13T14:35:03.767Z",
+      "lastLoginAt": "2025-08-13T14:35:03.767Z"
     }
   ],
   "sessions": [],

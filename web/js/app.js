@@ -5,16 +5,46 @@
  * @description Main JavaScript application for Cloud-Native Issue Tracker
  * 
  * This file contains all the client-side logic for the application,
- * following best practices for maintainability and scalability.
+ * featuring Kenyan flag colors and Meta/Facebook-inspired design.
  */
 
 // ===== GLOBAL STATE =====
 let currentUser = null;
 let authToken = null;
 let issues = [
-    { issueId: 'ISSUE-001', title: 'Sample Issue 1', description: 'This is a sample issue', status: 'OPEN', priority: 'MEDIUM' },
-    { issueId: 'ISSUE-002', title: 'Sample Issue 2', description: 'Another sample issue', status: 'IN_PROGRESS', priority: 'HIGH' }
+    {
+        issueId: 'ISSUE-001',
+        title: 'Sample Issue 1',
+        description: 'This is a sample issue for testing',
+        category: 'BUG',
+        status: 'OPEN',
+        priority: 'MEDIUM',
+        assignee: 'admin@example.com',
+        reporter: 'admin@example.com',
+        tags: ['sample', 'test'],
+        attachments: [],
+        createdAt: '2025-08-12T10:00:00.000Z',
+        updatedAt: '2025-08-12T10:00:00.000Z'
+    },
+    {
+        issueId: 'ISSUE-002',
+        title: 'Sample Issue 2',
+        description: 'Another sample issue for testing',
+        category: 'FEATURE',
+        status: 'IN_PROGRESS',
+        priority: 'HIGH',
+        assignee: 'support@example.com',
+        reporter: 'admin@example.com',
+        tags: ['sample', 'high-priority'],
+        attachments: [],
+        createdAt: '2025-08-12T10:00:00.000Z',
+        updatedAt: '2025-08-12T10:00:00.000Z'
+    }
 ];
+
+// Pagination state
+let currentPage = 1;
+let itemsPerPage = 10;
 
 // ===== UTILITY FUNCTIONS =====
 const Utils = {
@@ -26,7 +56,6 @@ const Utils = {
         notification.className = `notification ${type}`;
         notification.textContent = message;
         document.body.appendChild(notification);
-        
         setTimeout(() => {
             notification.remove();
         }, 3000);
@@ -45,6 +74,29 @@ const Utils = {
      */
     formatDate: (dateString) => {
         return new Date(dateString).toLocaleDateString();
+    },
+
+    /**
+     * Generate unique ID
+     */
+    generateId: () => {
+        return 'ISSUE-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    },
+
+    /**
+     * Handle file upload
+     */
+    handleFileUpload: (files) => {
+        const attachments = [];
+        for (let file of files) {
+            attachments.push({
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                lastModified: file.lastModified
+            });
+        }
+        return attachments;
     }
 };
 
@@ -70,17 +122,20 @@ const Auth = {
         try {
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({ email, password })
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 currentUser = data.data.user;
                 authToken = data.data.token;
                 localStorage.setItem('authToken', authToken);
                 localStorage.setItem('user', JSON.stringify(currentUser));
+                
                 UI.showAuthResponse('Login successful!', 'success');
                 setTimeout(() => {
                     UI.showApp();
@@ -121,17 +176,20 @@ const Auth = {
         try {
             const response = await fetch('/api/auth/register', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({ firstName, lastName, email, password, role })
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 currentUser = data.data.user;
                 authToken = data.data.token;
                 localStorage.setItem('authToken', authToken);
                 localStorage.setItem('user', JSON.stringify(currentUser));
+                
                 UI.showAuthResponse('Registration successful!', 'success');
                 setTimeout(() => {
                     UI.showApp();
@@ -159,6 +217,7 @@ const Auth = {
         authToken = 'demo-token-' + Date.now();
         localStorage.setItem('authToken', authToken);
         localStorage.setItem('user', JSON.stringify(currentUser));
+        
         UI.showAuthResponse('Demo login successful!', 'success');
         setTimeout(() => {
             UI.showApp();
@@ -182,7 +241,7 @@ const Auth = {
     checkAuth: () => {
         const savedToken = localStorage.getItem('authToken');
         const savedUser = localStorage.getItem('user');
-        
+
         if (savedToken && savedUser) {
             authToken = savedToken;
             currentUser = JSON.parse(savedUser);
@@ -228,6 +287,7 @@ const UI = {
     showAuth: () => {
         document.getElementById('authSection').classList.add('active');
         document.getElementById('appSection').classList.remove('active');
+        
         // Update URL
         if (window.history && window.history.pushState) {
             window.history.pushState({ page: 'auth' }, 'Authentication', '/auth');
@@ -240,8 +300,9 @@ const UI = {
     showApp: () => {
         document.getElementById('authSection').classList.remove('active');
         document.getElementById('appSection').classList.add('active');
-        UI.updateUserInfo();
-        UI.showDashboard(); // Show dashboard by default
+        UI.updateAccountInfo();
+        UI.showDashboard();
+        
         // Update URL
         if (window.history && window.history.pushState) {
             window.history.pushState({ page: 'dashboard' }, 'Dashboard', '/dashboard');
@@ -256,6 +317,7 @@ const UI = {
         document.getElementById('dashboardSection').classList.add('active');
         UI.updateNavigation('dashboard');
         Dashboard.updateMetrics();
+        
         // Update URL
         if (window.history && window.history.pushState) {
             window.history.pushState({ page: 'dashboard' }, 'Dashboard', '/dashboard');
@@ -270,6 +332,7 @@ const UI = {
         document.getElementById('issuesSection').classList.add('active');
         UI.updateNavigation('issues');
         IssueManager.displayIssues();
+        
         // Update URL
         if (window.history && window.history.pushState) {
             window.history.pushState({ page: 'issues' }, 'Issues', '/issues');
@@ -283,6 +346,7 @@ const UI = {
         UI.hideAllSections();
         document.getElementById('apiSection').classList.add('active');
         UI.updateNavigation('api');
+        
         // Update URL
         if (window.history && window.history.pushState) {
             window.history.pushState({ page: 'api' }, 'API Testing', '/api');
@@ -305,7 +369,7 @@ const UI = {
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        
+
         const activeBtn = document.querySelector(`[onclick*="${activeSection}"]`);
         if (activeBtn) {
             activeBtn.classList.add('active');
@@ -313,15 +377,37 @@ const UI = {
     },
 
     /**
-     * Update user information display
+     * Update account information in header
      */
-    updateUserInfo: () => {
+    updateAccountInfo: () => {
         if (currentUser) {
-            document.getElementById('userInfo').style.display = 'block';
-            document.getElementById('userName').textContent = `${currentUser.firstName} ${currentUser.lastName}`;
-            document.getElementById('userRole').textContent = currentUser.role;
-            document.getElementById('userEmail').textContent = currentUser.email;
+            const accountName = document.getElementById('accountName');
+            accountName.textContent = `${currentUser.firstName} ${currentUser.lastName}`;
         }
+    },
+
+    /**
+     * Toggle account dropdown menu
+     */
+    toggleAccountMenu: () => {
+        const dropdown = document.getElementById('accountDropdown');
+        dropdown.classList.toggle('show');
+    },
+
+    /**
+     * Show profile page
+     */
+    showProfile: () => {
+        UI.toggleAccountMenu();
+        Utils.showNotification('Profile page coming soon!', 'info');
+    },
+
+    /**
+     * Show settings page
+     */
+    showSettings: () => {
+        UI.toggleAccountMenu();
+        Utils.showNotification('Settings page coming soon!', 'info');
     }
 };
 
@@ -382,11 +468,11 @@ const Dashboard = {
         }
 
         let chartHTML = `<h4 style="margin: 0 0 15px 0; color: #333;">${title}</h4>`;
-        
+
         Object.entries(data).forEach(([key, value]) => {
             const percentage = Math.round((value / issues.length) * 100) || 0;
             const color = Dashboard.getColorForKey(key);
-            
+
             chartHTML += `
                 <div style="margin-bottom: 10px;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
@@ -408,16 +494,16 @@ const Dashboard = {
      */
     getColorForKey: (key) => {
         const colors = {
-            'OPEN': '#28a745',
-            'IN_PROGRESS': '#ffc107',
-            'RESOLVED': '#17a2b8',
-            'CLOSED': '#6c757d',
-            'LOW': '#28a745',
-            'MEDIUM': '#ffc107',
-            'HIGH': '#fd7e14',
-            'CRITICAL': '#dc3545'
+            'OPEN': '#006600',
+            'IN_PROGRESS': '#FF6B35',
+            'RESOLVED': '#000000',
+            'CLOSED': '#80868B',
+            'LOW': '#006600',
+            'MEDIUM': '#FF6B35',
+            'HIGH': '#CE1126',
+            'CRITICAL': '#000000'
         };
-        return colors[key] || '#667eea';
+        return colors[key] || '#CE1126';
     }
 };
 
@@ -429,32 +515,45 @@ const IssueManager = {
     createIssue: () => {
         const title = document.getElementById('issueTitle').value;
         const description = document.getElementById('issueDescription').value;
+        const category = document.getElementById('issueCategory').value;
         const priority = document.getElementById('issuePriority').value;
-        
-        if (!title) {
-            Utils.showNotification('Please enter a title for the issue', 'error');
+        const assignee = document.getElementById('issueAssignee').value;
+        const tags = document.getElementById('issueTags').value;
+        const attachments = document.getElementById('issueAttachments').files;
+
+        if (!title || !description) {
+            Utils.showNotification('Please fill in title and description', 'error');
             return;
         }
 
         const newIssue = {
-            issueId: 'ISSUE-' + Date.now(),
+            issueId: Utils.generateId(),
             title: title,
             description: description,
+            category: category,
             status: 'OPEN',
             priority: priority,
+            assignee: assignee || null,
+            reporter: currentUser ? currentUser.email : 'anonymous',
+            tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
+            attachments: Utils.handleFileUpload(attachments),
             createdAt: new Date().toISOString(),
-            reporter: currentUser ? currentUser.email : 'anonymous'
+            updatedAt: new Date().toISOString()
         };
 
         issues.push(newIssue);
         IssueManager.displayIssues();
-        Dashboard.updateMetrics(); // Update dashboard metrics
-        
+        Dashboard.updateMetrics();
+
         // Clear form
         document.getElementById('issueTitle').value = '';
         document.getElementById('issueDescription').value = '';
+        document.getElementById('issueCategory').value = 'BUG';
         document.getElementById('issuePriority').value = 'MEDIUM';
-        
+        document.getElementById('issueAssignee').value = '';
+        document.getElementById('issueTags').value = '';
+        document.getElementById('issueAttachments').value = '';
+
         Utils.showNotification('Issue created successfully!', 'success');
     },
 
@@ -464,37 +563,122 @@ const IssueManager = {
     loadIssues: () => {
         // In a real app, this would fetch from the API
         IssueManager.displayIssues();
+        Utils.showNotification('Issues refreshed!', 'success');
     },
 
     /**
-     * Display issues in the UI
+     * Display issues in table format with pagination
      */
     displayIssues: () => {
-        const issuesList = document.getElementById('issuesList');
-        issuesList.innerHTML = '';
-        
-        if (issues.length === 0) {
-            issuesList.innerHTML = '<p style="text-align: center; color: #888;">No issues found. Create one!</p>';
-            return;
-        }
-        
-        issues.forEach(issue => {
-            const issueDiv = document.createElement('div');
-            issueDiv.className = 'issue-item';
-            issueDiv.innerHTML = `
-                <div class="issue-title">${issue.title}</div>
-                <div class="issue-meta">
-                    ID: ${issue.issueId} | 
-                    Status: <span class="status ${issue.status === 'OPEN' ? 'success' : 'info'}">${issue.status}</span> | 
-                    Priority: ${issue.priority} | 
-                    Reporter: ${issue.reporter || 'Unknown'}
-                </div>
-                ${issue.description ? `<div style="margin-top: 5px; font-size: 14px;">${issue.description}</div>` : ''}
+        const tableBody = document.getElementById('issuesTableBody');
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedIssues = issues.slice(startIndex, endIndex);
+
+        tableBody.innerHTML = '';
+
+        if (paginatedIssues.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 40px; color: #666;">
+                        No issues found. Create one!
+                    </td>
+                </tr>
             `;
-            issuesList.appendChild(issueDiv);
-        });
+        } else {
+            paginatedIssues.forEach(issue => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${issue.issueId}</td>
+                    <td>
+                        <strong>${issue.title}</strong>
+                        ${issue.description ? `<br><small style="color: #666;">${issue.description.substring(0, 50)}${issue.description.length > 50 ? '...' : ''}</small>` : ''}
+                    </td>
+                    <td>${issue.category}</td>
+                    <td><span class="priority-badge ${issue.priority.toLowerCase()}">${issue.priority}</span></td>
+                    <td><span class="status-badge ${issue.status.toLowerCase().replace('_', '-')}">${issue.status}</span></td>
+                    <td>${issue.assignee || 'Unassigned'}</td>
+                    <td>${Utils.formatDate(issue.createdAt)}</td>
+                    <td>
+                        <button onclick="IssueManager.editIssue('${issue.issueId}')" style="margin-right: 5px; padding: 4px 8px; font-size: 12px;">✏️</button>
+                        <button onclick="IssueManager.deleteIssue('${issue.issueId}')" style="padding: 4px 8px; font-size: 12px; background: #DC3545;">🗑️</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        IssueManager.updatePagination();
+    },
+
+    /**
+     * Update pagination controls
+     */
+    updatePagination: () => {
+        const totalPages = Math.ceil(issues.length / itemsPerPage);
+        const pageInfo = document.getElementById('pageInfo');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+    },
+
+    /**
+     * Edit issue
+     */
+    editIssue: (issueId) => {
+        const issue = issues.find(i => i.issueId === issueId);
+        if (issue) {
+            Utils.showNotification(`Editing issue: ${issue.title}`, 'info');
+            // TODO: Implement edit modal/form
+        }
+    },
+
+    /**
+     * Delete issue
+     */
+    deleteIssue: (issueId) => {
+        if (confirm('Are you sure you want to delete this issue?')) {
+            issues = issues.filter(i => i.issueId !== issueId);
+            IssueManager.displayIssues();
+            Dashboard.updateMetrics();
+            Utils.showNotification('Issue deleted successfully!', 'success');
+        }
+    },
+
+    /**
+     * Export issues
+     */
+    exportIssues: () => {
+        const dataStr = JSON.stringify(issues, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `issues-export-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        Utils.showNotification('Issues exported successfully!', 'success');
     }
 };
+
+// ===== PAGINATION FUNCTIONS =====
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        IssueManager.displayIssues();
+    }
+}
+
+function nextPage() {
+    const totalPages = Math.ceil(issues.length / itemsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        IssueManager.displayIssues();
+    }
+}
 
 // ===== API TESTING MODULE =====
 const APITester = {
@@ -504,13 +688,15 @@ const APITester = {
     testEndpoint: async () => {
         const endpoint = document.getElementById('endpoint').value;
         const requestBody = document.getElementById('requestBody').value;
-        
         const responseDiv = document.getElementById('apiResponse');
+
         responseDiv.style.display = 'block';
         responseDiv.innerHTML = 'Loading...';
-        
+
         try {
-            const headers = { 'Content-Type': 'application/json' };
+            const headers = {
+                'Content-Type': 'application/json'
+            };
             if (authToken) {
                 headers['Authorization'] = `Bearer ${authToken}`;
             }
@@ -530,7 +716,6 @@ const APITester = {
             });
 
             const data = await response.json();
-            
             responseDiv.innerHTML = `✅ Status: ${response.status}\n📄 Response: ${JSON.stringify(data, null, 2)}`;
         } catch (error) {
             responseDiv.innerHTML = `❌ Error: ${error.message}`;
@@ -542,10 +727,33 @@ const APITester = {
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize the application
     Auth.checkAuth();
-    
+
     // Add event listeners for forms
     document.addEventListener('submit', (e) => {
         e.preventDefault();
+    });
+
+    // Handle file upload display
+    const fileInput = document.getElementById('issueAttachments');
+    if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+            const label = document.querySelector('.file-upload-label');
+            if (e.target.files.length > 0) {
+                label.textContent = `📎 ${e.target.files.length} file(s) selected`;
+            } else {
+                label.textContent = '📎 Choose files or drag and drop here';
+            }
+        });
+    }
+
+    // Close account dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        const accountMenu = document.getElementById('accountMenu');
+        const dropdown = document.getElementById('accountDropdown');
+        
+        if (!accountMenu.contains(e.target) && dropdown.classList.contains('show')) {
+            dropdown.classList.remove('show');
+        }
     });
 
     // Handle browser back/forward buttons
@@ -581,3 +789,9 @@ window.testEndpoint = APITester.testEndpoint;
 window.showDashboard = UI.showDashboard;
 window.showIssues = UI.showIssues;
 window.showAPI = UI.showAPI;
+window.toggleAccountMenu = UI.toggleAccountMenu;
+window.showProfile = UI.showProfile;
+window.showSettings = UI.showSettings;
+window.previousPage = previousPage;
+window.nextPage = nextPage;
+window.exportIssues = IssueManager.exportIssues;
