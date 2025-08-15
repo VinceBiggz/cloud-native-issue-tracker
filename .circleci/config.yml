@@ -1,0 +1,87 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.1.0
+
+jobs:
+  test:
+    docker:
+      - image: cimg/node:22.18.0
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          cache-path: node_modules
+      - run:
+          name: Run Linting
+          command: npx eslint . --ext .ts,.js
+      - run:
+          name: Run Build
+          command: npm run build
+      - run:
+          name: Run Tests (if available)
+          command: npm test || echo "No tests configured yet"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - node_modules
+            - dist
+            - build
+
+  deploy-staging:
+    docker:
+      - image: cimg/node:22.18.0
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Deploy to Staging
+          command: |
+            echo "Deploying to staging environment..."
+            # Add your staging deployment commands here
+            # npm run deploy:staging
+      - run:
+          name: Run Integration Tests
+          command: |
+            echo "Running integration tests..."
+            # Add your integration test commands here
+
+  deploy-production:
+    docker:
+      - image: cimg/node:22.18.0
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Deploy to Production
+          command: |
+            echo "Deploying to production environment..."
+            # Add your production deployment commands here
+            # npm run deploy:production
+
+workflows:
+  version: 2
+  test-and-deploy:
+    jobs:
+      - test:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+                - /feature\/.*/
+                - /hotfix\/.*/
+      - deploy-staging:
+          requires:
+            - test
+          filters:
+            branches:
+              only: develop
+      - deploy-production:
+          requires:
+            - test
+          filters:
+            branches:
+              only: main
