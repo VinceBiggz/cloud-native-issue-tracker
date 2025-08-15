@@ -116,6 +116,7 @@
                 <button class="nav-btn" onclick="showIssues()">📋 Issues</button>
                 <button class="nav-btn" onclick="showReports()">📈 Reports</button>
                 <button class="nav-btn" onclick="showTeams()">👥 Teams</button>
+                <button class="nav-btn" onclick="showIntegrations()">🔗 Integrations</button>
                 <button class="nav-btn" onclick="showAPI()">🔧 API Testing</button>
             </div>
 
@@ -873,6 +874,345 @@
                     <div class="modal-footer">
                         <button onclick="createDepartment()" class="btn-primary">🏛️ Create Department</button>
                         <button onclick="closeCreateDepartmentModal()" class="btn-secondary">❌ Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Integrations Section -->
+            <div id="integrationsSection" class="content-section">
+                <div class="integrations-container">
+                    <div class="integrations-header">
+                        <h2>🔗 Integration Hub</h2>
+                        <p>Connect your issue tracker with external tools and services</p>
+                    </div>
+
+                    <!-- Integration Overview -->
+                    <div class="integration-overview">
+                        <div class="overview-card">
+                            <div class="overview-icon">📊</div>
+                            <div class="overview-content">
+                                <h3>Connected Services</h3>
+                                <div class="overview-number" id="connectedServices">0</div>
+                            </div>
+                        </div>
+                        <div class="overview-card">
+                            <div class="overview-icon">🔄</div>
+                            <div class="overview-content">
+                                <h3>Sync Status</h3>
+                                <div class="overview-number" id="syncStatus">All Good</div>
+                            </div>
+                        </div>
+                        <div class="overview-card">
+                            <div class="overview-icon">📈</div>
+                            <div class="overview-content">
+                                <h3>Last Sync</h3>
+                                <div class="overview-number" id="lastSync">2 min ago</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Available Integrations -->
+                    <div class="integrations-grid">
+                        <!-- GitHub Integration -->
+                        <div class="integration-card" id="githubCard">
+                            <div class="integration-header">
+                                <div class="integration-icon">🐙</div>
+                                <div class="integration-info">
+                                    <h3>GitHub</h3>
+                                    <p>Connect issues to GitHub repositories</p>
+                                </div>
+                                <div class="integration-status" id="githubStatus">
+                                    <span class="status-badge disconnected">Disconnected</span>
+                                </div>
+                            </div>
+                            <div class="integration-features">
+                                <ul>
+                                    <li>🔗 Link issues to GitHub repositories</li>
+                                    <li>🔄 Sync issue status with GitHub issues</li>
+                                    <li>📝 Auto-create GitHub issues from tracker</li>
+                                    <li>🔔 GitHub webhook notifications</li>
+                                </ul>
+                            </div>
+                            <div class="integration-actions">
+                                <button onclick="connectGitHub()" class="btn-primary">🔗 Connect GitHub</button>
+                                <button onclick="configureGitHub()" class="btn-secondary">⚙️ Configure</button>
+                            </div>
+                        </div>
+
+                        <!-- Slack Integration -->
+                        <div class="integration-card" id="slackCard">
+                            <div class="integration-header">
+                                <div class="integration-icon">💬</div>
+                                <div class="integration-info">
+                                    <h3>Slack</h3>
+                                    <p>Real-time notifications and updates</p>
+                                </div>
+                                <div class="integration-status" id="slackStatus">
+                                    <span class="status-badge disconnected">Disconnected</span>
+                                </div>
+                            </div>
+                            <div class="integration-features">
+                                <ul>
+                                    <li>🔔 Real-time issue notifications</li>
+                                    <li>🤖 Slack bot for issue management</li>
+                                    <li>📢 Channel-based notifications</li>
+                                    <li>⚡ Instant status updates</li>
+                                </ul>
+                            </div>
+                            <div class="integration-actions">
+                                <button onclick="connectSlack()" class="btn-primary">🔗 Connect Slack</button>
+                                <button onclick="configureSlack()" class="btn-secondary">⚙️ Configure</button>
+                            </div>
+                        </div>
+
+                        <!-- Email Integration -->
+                        <div class="integration-card" id="emailCard">
+                            <div class="integration-header">
+                                <div class="integration-icon">📧</div>
+                                <div class="integration-info">
+                                    <h3>Email</h3>
+                                    <p>Automated email notifications</p>
+                                </div>
+                                <div class="integration-status" id="emailStatus">
+                                    <span class="status-badge connected">Connected</span>
+                                </div>
+                            </div>
+                            <div class="integration-features">
+                                <ul>
+                                    <li>📨 Automated issue notifications</li>
+                                    <li>👤 Assignment emails</li>
+                                    <li>📊 Daily/weekly reports</li>
+                                    <li>⚙️ Customizable templates</li>
+                                </ul>
+                            </div>
+                            <div class="integration-actions">
+                                <button onclick="configureEmail()" class="btn-primary">⚙️ Configure Email</button>
+                                <button onclick="testEmail()" class="btn-secondary">📧 Test Email</button>
+                            </div>
+                        </div>
+
+                        <!-- Jira Integration -->
+                        <div class="integration-card" id="jiraCard">
+                            <div class="integration-header">
+                                <div class="integration-icon">🦘</div>
+                                <div class="integration-info">
+                                    <h3>Jira</h3>
+                                    <p>Enterprise workflow integration</p>
+                                </div>
+                                <div class="integration-status" id="jiraStatus">
+                                    <span class="status-badge disconnected">Disconnected</span>
+                                </div>
+                            </div>
+                            <div class="integration-features">
+                                <ul>
+                                    <li>🔄 Bidirectional sync with Jira</li>
+                                    <li>📋 Import Jira projects</li>
+                                    <li>🔄 Status synchronization</li>
+                                    <li>👥 User mapping</li>
+                                </ul>
+                            </div>
+                            <div class="integration-actions">
+                                <button onclick="connectJira()" class="btn-primary">🔗 Connect Jira</button>
+                                <button onclick="configureJira()" class="btn-secondary">⚙️ Configure</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Integration Activity -->
+                    <div class="integration-activity">
+                        <h3>📊 Recent Integration Activity</h3>
+                        <div class="activity-list" id="activityList">
+                            <!-- Activity items will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Integration Configuration Modals -->
+            
+            <!-- GitHub Configuration Modal -->
+            <div id="githubConfigModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>🐙 GitHub Integration</h2>
+                        <button class="modal-close" onclick="closeGitHubConfig()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="githubConfigForm">
+                            <div class="form-group">
+                                <label for="githubToken">GitHub Personal Access Token</label>
+                                <input type="password" id="githubToken" placeholder="Enter your GitHub token" required>
+                                <small>Create a token with repo and issues permissions</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="githubRepo">Repository</label>
+                                <input type="text" id="githubRepo" placeholder="owner/repository" required>
+                                <small>Format: username/repository-name</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="githubWebhook">Webhook URL</label>
+                                <input type="url" id="githubWebhook" placeholder="https://your-domain.com/webhook/github">
+                                <small>Optional: For real-time updates</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Sync Options</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" value="auto_create" checked> Auto-create GitHub issues</label>
+                                    <label><input type="checkbox" value="sync_status" checked> Sync issue status</label>
+                                    <label><input type="checkbox" value="sync_comments" checked> Sync comments</label>
+                                    <label><input type="checkbox" value="webhook_notifications" checked> Webhook notifications</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="saveGitHubConfig()" class="btn-primary">💾 Save Configuration</button>
+                        <button onclick="testGitHubConnection()" class="btn-secondary">🧪 Test Connection</button>
+                        <button onclick="closeGitHubConfig()" class="btn-secondary">❌ Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slack Configuration Modal -->
+            <div id="slackConfigModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>💬 Slack Integration</h2>
+                        <button class="modal-close" onclick="closeSlackConfig()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="slackConfigForm">
+                            <div class="form-group">
+                                <label for="slackToken">Slack Bot Token</label>
+                                <input type="password" id="slackToken" placeholder="Enter your Slack bot token" required>
+                                <small>Create a Slack app and get the bot token</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="slackChannel">Default Channel</label>
+                                <input type="text" id="slackChannel" placeholder="#general" required>
+                                <small>Channel for general notifications</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="slackWebhook">Webhook URL</label>
+                                <input type="url" id="slackWebhook" placeholder="https://hooks.slack.com/services/...">
+                                <small>Optional: For custom webhook notifications</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Notification Settings</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" value="issue_created" checked> Issue created</label>
+                                    <label><input type="checkbox" value="issue_updated" checked> Issue updated</label>
+                                    <label><input type="checkbox" value="issue_assigned" checked> Issue assigned</label>
+                                    <label><input type="checkbox" value="issue_commented" checked> Issue commented</label>
+                                    <label><input type="checkbox" value="daily_summary" checked> Daily summary</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="saveSlackConfig()" class="btn-primary">💾 Save Configuration</button>
+                        <button onclick="testSlackConnection()" class="btn-secondary">🧪 Test Connection</button>
+                        <button onclick="closeSlackConfig()" class="btn-secondary">❌ Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Configuration Modal -->
+            <div id="emailConfigModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>📧 Email Configuration</h2>
+                        <button class="modal-close" onclick="closeEmailConfig()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="emailConfigForm">
+                            <div class="form-group">
+                                <label for="emailFrom">From Email</label>
+                                <input type="email" id="emailFrom" placeholder="noreply@yourcompany.com" required>
+                                <small>Default sender email address</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="emailSubject">Default Subject Prefix</label>
+                                <input type="text" id="emailSubject" placeholder="[Issue Tracker]" value="[Issue Tracker]">
+                                <small>Prefix for all email subjects</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Email Templates</label>
+                                <div class="template-group">
+                                    <label>Issue Assignment Email</label>
+                                    <textarea id="assignmentTemplate" rows="3" placeholder="Custom assignment email template...">Hi {{assignee_name}},
+
+You have been assigned to issue: {{issue_title}}
+
+Please review and update the status accordingly.
+
+Best regards,
+Issue Tracker Team</textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Notification Settings</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" value="assignment_emails" checked> Assignment emails</label>
+                                    <label><input type="checkbox" value="status_updates" checked> Status updates</label>
+                                    <label><input type="checkbox" value="daily_reports" checked> Daily reports</label>
+                                    <label><input type="checkbox" value="weekly_reports" checked> Weekly reports</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="saveEmailConfig()" class="btn-primary">💾 Save Configuration</button>
+                        <button onclick="testEmailConfig()" class="btn-secondary">📧 Test Email</button>
+                        <button onclick="closeEmailConfig()" class="btn-secondary">❌ Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jira Configuration Modal -->
+            <div id="jiraConfigModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>🦘 Jira Integration</h2>
+                        <button class="modal-close" onclick="closeJiraConfig()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="jiraConfigForm">
+                            <div class="form-group">
+                                <label for="jiraUrl">Jira Instance URL</label>
+                                <input type="url" id="jiraUrl" placeholder="https://yourcompany.atlassian.net" required>
+                                <small>Your Jira cloud or server URL</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="jiraEmail">Jira Email</label>
+                                <input type="email" id="jiraEmail" placeholder="your-email@company.com" required>
+                                <small>Email used for Jira authentication</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="jiraToken">Jira API Token</label>
+                                <input type="password" id="jiraToken" placeholder="Enter your Jira API token" required>
+                                <small>Create an API token in your Atlassian account</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="jiraProject">Jira Project Key</label>
+                                <input type="text" id="jiraProject" placeholder="PROJ" required>
+                                <small>Project key (e.g., PROJ, DEV, TEST)</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Sync Options</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" value="bidirectional_sync" checked> Bidirectional sync</label>
+                                    <label><input type="checkbox" value="sync_attachments" checked> Sync attachments</label>
+                                    <label><input type="checkbox" value="sync_comments" checked> Sync comments</label>
+                                    <label><input type="checkbox" value="auto_mapping" checked> Auto user mapping</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="saveJiraConfig()" class="btn-primary">💾 Save Configuration</button>
+                        <button onclick="testJiraConnection()" class="btn-secondary">🧪 Test Connection</button>
+                        <button onclick="closeJiraConfig()" class="btn-secondary">❌ Cancel</button>
                     </div>
                 </div>
             </div>

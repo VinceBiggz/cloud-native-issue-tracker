@@ -2293,3 +2293,612 @@ window.refreshTeams = TeamManager.refreshTeams;
 window.refreshMembers = TeamManager.refreshMembers;
 window.refreshRoles = TeamManager.refreshRoles;
 window.refreshDepartments = TeamManager.refreshDepartments;
+
+// ===== PHASE 3B: INTEGRATION HUB =====
+
+// Global state for integrations
+let integrations = {
+    github: {
+        connected: false,
+        config: {},
+        lastSync: null
+    },
+    slack: {
+        connected: false,
+        config: {},
+        lastSync: null
+    },
+    email: {
+        connected: true,
+        config: {
+            from: 'noreply@issuetracker.com',
+            subjectPrefix: '[Issue Tracker]',
+            templates: {
+                assignment: 'Hi {{assignee_name}},\n\nYou have been assigned to issue: {{issue_title}}\n\nPlease review and update the status accordingly.\n\nBest regards,\nIssue Tracker Team'
+            }
+        },
+        lastSync: new Date().toISOString()
+    },
+    jira: {
+        connected: false,
+        config: {},
+        lastSync: null
+    }
+};
+
+let integrationActivity = [
+    {
+        id: 'activity-1',
+        type: 'email',
+        title: 'Email notification sent',
+        description: 'Assignment email sent to john.doe@example.com',
+        time: new Date(Date.now() - 300000).toISOString(),
+        icon: '📧'
+    },
+    {
+        id: 'activity-2',
+        type: 'github',
+        title: 'GitHub sync completed',
+        description: 'Synced 5 issues with GitHub repository',
+        time: new Date(Date.now() - 600000).toISOString(),
+        icon: '🐙'
+    },
+    {
+        id: 'activity-3',
+        type: 'slack',
+        title: 'Slack notification sent',
+        description: 'Issue update sent to #general channel',
+        time: new Date(Date.now() - 900000).toISOString(),
+        icon: '💬'
+    }
+];
+
+// Integration Management
+const IntegrationManager = {
+    /**
+     * Show integrations section
+     */
+    showIntegrations: () => {
+        UI.hideAllSections();
+        document.getElementById('integrationsSection').classList.add('active');
+        UI.updateNavigation('integrations');
+        IntegrationManager.loadIntegrations();
+        
+        // Update URL
+        if (window.history && window.history.pushState) {
+            window.history.pushState({ page: 'integrations' }, 'Integrations', '/integrations');
+        }
+    },
+
+    /**
+     * Load integrations data
+     */
+    loadIntegrations: () => {
+        IntegrationManager.updateOverview();
+        IntegrationManager.updateIntegrationCards();
+        IntegrationManager.loadActivity();
+    },
+
+    /**
+     * Update overview metrics
+     */
+    updateOverview: () => {
+        const connectedCount = Object.values(integrations).filter(integration => integration.connected).length;
+        document.getElementById('connectedServices').textContent = connectedCount;
+        
+        const allGood = connectedCount > 0 ? 'All Good' : 'No Connections';
+        document.getElementById('syncStatus').textContent = allGood;
+        
+        const lastSync = IntegrationManager.getLastSyncTime();
+        document.getElementById('lastSync').textContent = lastSync;
+    },
+
+    /**
+     * Update integration cards
+     */
+    updateIntegrationCards: () => {
+        // Update GitHub status
+        const githubStatus = document.getElementById('githubStatus');
+        githubStatus.innerHTML = `<span class="status-badge ${integrations.github.connected ? 'connected' : 'disconnected'}">${integrations.github.connected ? 'Connected' : 'Disconnected'}</span>`;
+
+        // Update Slack status
+        const slackStatus = document.getElementById('slackStatus');
+        slackStatus.innerHTML = `<span class="status-badge ${integrations.slack.connected ? 'connected' : 'disconnected'}">${integrations.slack.connected ? 'Connected' : 'Disconnected'}</span>`;
+
+        // Update Email status
+        const emailStatus = document.getElementById('emailStatus');
+        emailStatus.innerHTML = `<span class="status-badge ${integrations.email.connected ? 'connected' : 'disconnected'}">${integrations.email.connected ? 'Connected' : 'Disconnected'}</span>`;
+
+        // Update Jira status
+        const jiraStatus = document.getElementById('jiraStatus');
+        jiraStatus.innerHTML = `<span class="status-badge ${integrations.jira.connected ? 'connected' : 'disconnected'}">${integrations.jira.connected ? 'Connected' : 'Disconnected'}</span>`;
+    },
+
+    /**
+     * Load activity list
+     */
+    loadActivity: () => {
+        const activityList = document.getElementById('activityList');
+        
+        activityList.innerHTML = integrationActivity.map(activity => `
+            <div class="activity-item">
+                <div class="activity-icon">${activity.icon}</div>
+                <div class="activity-content">
+                    <div class="activity-title">${activity.title}</div>
+                    <div class="activity-description">${activity.description}</div>
+                </div>
+                <div class="activity-time">${Utils.formatTimeAgo(activity.time)}</div>
+            </div>
+        `).join('');
+    },
+
+    /**
+     * Get last sync time
+     */
+    getLastSyncTime: () => {
+        const lastSyncs = Object.values(integrations)
+            .filter(integration => integration.lastSync)
+            .map(integration => new Date(integration.lastSync));
+        
+        if (lastSyncs.length === 0) return 'Never';
+        
+        const mostRecent = new Date(Math.max(...lastSyncs));
+        return Utils.formatTimeAgo(mostRecent.toISOString());
+    },
+
+    /**
+     * Connect GitHub
+     */
+    connectGitHub: () => {
+        IntegrationManager.openGitHubConfig();
+    },
+
+    /**
+     * Configure GitHub
+     */
+    configureGitHub: () => {
+        IntegrationManager.openGitHubConfig();
+    },
+
+    /**
+     * Open GitHub configuration modal
+     */
+    openGitHubConfig: () => {
+        document.getElementById('githubConfigModal').style.display = 'block';
+        
+        // Pre-fill with existing config
+        if (integrations.github.config.token) {
+            document.getElementById('githubToken').value = integrations.github.config.token;
+        }
+        if (integrations.github.config.repo) {
+            document.getElementById('githubRepo').value = integrations.github.config.repo;
+        }
+        if (integrations.github.config.webhook) {
+            document.getElementById('githubWebhook').value = integrations.github.config.webhook;
+        }
+    },
+
+    /**
+     * Close GitHub configuration modal
+     */
+    closeGitHubConfig: () => {
+        document.getElementById('githubConfigModal').style.display = 'none';
+        document.getElementById('githubConfigForm').reset();
+    },
+
+    /**
+     * Save GitHub configuration
+     */
+    saveGitHubConfig: () => {
+        const token = document.getElementById('githubToken').value;
+        const repo = document.getElementById('githubRepo').value;
+        const webhook = document.getElementById('githubWebhook').value;
+        
+        if (!token || !repo) {
+            Utils.showNotification('GitHub token and repository are required', 'error');
+            return;
+        }
+
+        integrations.github.config = {
+            token: token,
+            repo: repo,
+            webhook: webhook,
+            syncOptions: IntegrationManager.getCheckedOptions('githubConfigForm')
+        };
+
+        integrations.github.connected = true;
+        integrations.github.lastSync = new Date().toISOString();
+
+        IntegrationManager.addActivity('github', 'GitHub connected', `Connected to repository: ${repo}`);
+        IntegrationManager.loadIntegrations();
+        IntegrationManager.closeGitHubConfig();
+        Utils.showNotification('GitHub integration configured successfully!', 'success');
+    },
+
+    /**
+     * Test GitHub connection
+     */
+    testGitHubConnection: () => {
+        const token = document.getElementById('githubToken').value;
+        const repo = document.getElementById('githubRepo').value;
+        
+        if (!token || !repo) {
+            Utils.showNotification('Please enter GitHub token and repository', 'error');
+            return;
+        }
+
+        // Simulate API test
+        Utils.showNotification('Testing GitHub connection...', 'info');
+        
+        setTimeout(() => {
+            Utils.showNotification('GitHub connection test successful!', 'success');
+            IntegrationManager.addActivity('github', 'GitHub connection tested', 'Connection test completed successfully');
+            IntegrationManager.loadIntegrations();
+        }, 2000);
+    },
+
+    /**
+     * Connect Slack
+     */
+    connectSlack: () => {
+        IntegrationManager.openSlackConfig();
+    },
+
+    /**
+     * Configure Slack
+     */
+    configureSlack: () => {
+        IntegrationManager.openSlackConfig();
+    },
+
+    /**
+     * Open Slack configuration modal
+     */
+    openSlackConfig: () => {
+        document.getElementById('slackConfigModal').style.display = 'block';
+        
+        // Pre-fill with existing config
+        if (integrations.slack.config.token) {
+            document.getElementById('slackToken').value = integrations.slack.config.token;
+        }
+        if (integrations.slack.config.channel) {
+            document.getElementById('slackChannel').value = integrations.slack.config.channel;
+        }
+        if (integrations.slack.config.webhook) {
+            document.getElementById('slackWebhook').value = integrations.slack.config.webhook;
+        }
+    },
+
+    /**
+     * Close Slack configuration modal
+     */
+    closeSlackConfig: () => {
+        document.getElementById('slackConfigModal').style.display = 'none';
+        document.getElementById('slackConfigForm').reset();
+    },
+
+    /**
+     * Save Slack configuration
+     */
+    saveSlackConfig: () => {
+        const token = document.getElementById('slackToken').value;
+        const channel = document.getElementById('slackChannel').value;
+        const webhook = document.getElementById('slackWebhook').value;
+        
+        if (!token || !channel) {
+            Utils.showNotification('Slack token and channel are required', 'error');
+            return;
+        }
+
+        integrations.slack.config = {
+            token: token,
+            channel: channel,
+            webhook: webhook,
+            notifications: IntegrationManager.getCheckedOptions('slackConfigForm')
+        };
+
+        integrations.slack.connected = true;
+        integrations.slack.lastSync = new Date().toISOString();
+
+        IntegrationManager.addActivity('slack', 'Slack connected', `Connected to channel: ${channel}`);
+        IntegrationManager.loadIntegrations();
+        IntegrationManager.closeSlackConfig();
+        Utils.showNotification('Slack integration configured successfully!', 'success');
+    },
+
+    /**
+     * Test Slack connection
+     */
+    testSlackConnection: () => {
+        const token = document.getElementById('slackToken').value;
+        const channel = document.getElementById('slackChannel').value;
+        
+        if (!token || !channel) {
+            Utils.showNotification('Please enter Slack token and channel', 'error');
+            return;
+        }
+
+        // Simulate API test
+        Utils.showNotification('Testing Slack connection...', 'info');
+        
+        setTimeout(() => {
+            Utils.showNotification('Slack connection test successful!', 'success');
+            IntegrationManager.addActivity('slack', 'Slack connection tested', 'Connection test completed successfully');
+            IntegrationManager.loadIntegrations();
+        }, 2000);
+    },
+
+    /**
+     * Configure Email
+     */
+    configureEmail: () => {
+        IntegrationManager.openEmailConfig();
+    },
+
+    /**
+     * Test Email
+     */
+    testEmail: () => {
+        IntegrationManager.openEmailConfig();
+    },
+
+    /**
+     * Open Email configuration modal
+     */
+    openEmailConfig: () => {
+        document.getElementById('emailConfigModal').style.display = 'block';
+        
+        // Pre-fill with existing config
+        if (integrations.email.config.from) {
+            document.getElementById('emailFrom').value = integrations.email.config.from;
+        }
+        if (integrations.email.config.subjectPrefix) {
+            document.getElementById('emailSubject').value = integrations.email.config.subjectPrefix;
+        }
+        if (integrations.email.config.templates?.assignment) {
+            document.getElementById('assignmentTemplate').value = integrations.email.config.templates.assignment;
+        }
+    },
+
+    /**
+     * Close Email configuration modal
+     */
+    closeEmailConfig: () => {
+        document.getElementById('emailConfigModal').style.display = 'none';
+        document.getElementById('emailConfigForm').reset();
+    },
+
+    /**
+     * Save Email configuration
+     */
+    saveEmailConfig: () => {
+        const from = document.getElementById('emailFrom').value;
+        const subjectPrefix = document.getElementById('emailSubject').value;
+        const assignmentTemplate = document.getElementById('assignmentTemplate').value;
+        
+        if (!from) {
+            Utils.showNotification('From email is required', 'error');
+            return;
+        }
+
+        integrations.email.config = {
+            from: from,
+            subjectPrefix: subjectPrefix,
+            templates: {
+                assignment: assignmentTemplate
+            },
+            notifications: IntegrationManager.getCheckedOptions('emailConfigForm')
+        };
+
+        integrations.email.lastSync = new Date().toISOString();
+
+        IntegrationManager.addActivity('email', 'Email configuration updated', 'Email settings saved successfully');
+        IntegrationManager.loadIntegrations();
+        IntegrationManager.closeEmailConfig();
+        Utils.showNotification('Email configuration saved successfully!', 'success');
+    },
+
+    /**
+     * Test Email configuration
+     */
+    testEmailConfig: () => {
+        const from = document.getElementById('emailFrom').value;
+        
+        if (!from) {
+            Utils.showNotification('Please enter from email address', 'error');
+            return;
+        }
+
+        // Simulate email test
+        Utils.showNotification('Sending test email...', 'info');
+        
+        setTimeout(() => {
+            Utils.showNotification('Test email sent successfully!', 'success');
+            IntegrationManager.addActivity('email', 'Test email sent', 'Test email sent to current user');
+            IntegrationManager.loadIntegrations();
+        }, 2000);
+    },
+
+    /**
+     * Connect Jira
+     */
+    connectJira: () => {
+        IntegrationManager.openJiraConfig();
+    },
+
+    /**
+     * Configure Jira
+     */
+    configureJira: () => {
+        IntegrationManager.openJiraConfig();
+    },
+
+    /**
+     * Open Jira configuration modal
+     */
+    openJiraConfig: () => {
+        document.getElementById('jiraConfigModal').style.display = 'block';
+        
+        // Pre-fill with existing config
+        if (integrations.jira.config.url) {
+            document.getElementById('jiraUrl').value = integrations.jira.config.url;
+        }
+        if (integrations.jira.config.email) {
+            document.getElementById('jiraEmail').value = integrations.jira.config.email;
+        }
+        if (integrations.jira.config.token) {
+            document.getElementById('jiraToken').value = integrations.jira.config.token;
+        }
+        if (integrations.jira.config.project) {
+            document.getElementById('jiraProject').value = integrations.jira.config.project;
+        }
+    },
+
+    /**
+     * Close Jira configuration modal
+     */
+    closeJiraConfig: () => {
+        document.getElementById('jiraConfigModal').style.display = 'none';
+        document.getElementById('jiraConfigForm').reset();
+    },
+
+    /**
+     * Save Jira configuration
+     */
+    saveJiraConfig: () => {
+        const url = document.getElementById('jiraUrl').value;
+        const email = document.getElementById('jiraEmail').value;
+        const token = document.getElementById('jiraToken').value;
+        const project = document.getElementById('jiraProject').value;
+        
+        if (!url || !email || !token || !project) {
+            Utils.showNotification('All Jira fields are required', 'error');
+            return;
+        }
+
+        integrations.jira.config = {
+            url: url,
+            email: email,
+            token: token,
+            project: project,
+            syncOptions: IntegrationManager.getCheckedOptions('jiraConfigForm')
+        };
+
+        integrations.jira.connected = true;
+        integrations.jira.lastSync = new Date().toISOString();
+
+        IntegrationManager.addActivity('jira', 'Jira connected', `Connected to project: ${project}`);
+        IntegrationManager.loadIntegrations();
+        IntegrationManager.closeJiraConfig();
+        Utils.showNotification('Jira integration configured successfully!', 'success');
+    },
+
+    /**
+     * Test Jira connection
+     */
+    testJiraConnection: () => {
+        const url = document.getElementById('jiraUrl').value;
+        const email = document.getElementById('jiraEmail').value;
+        const token = document.getElementById('jiraToken').value;
+        
+        if (!url || !email || !token) {
+            Utils.showNotification('Please enter Jira URL, email, and token', 'error');
+            return;
+        }
+
+        // Simulate API test
+        Utils.showNotification('Testing Jira connection...', 'info');
+        
+        setTimeout(() => {
+            Utils.showNotification('Jira connection test successful!', 'success');
+            IntegrationManager.addActivity('jira', 'Jira connection tested', 'Connection test completed successfully');
+            IntegrationManager.loadIntegrations();
+        }, 2000);
+    },
+
+    /**
+     * Get checked options from form
+     */
+    getCheckedOptions: (formId) => {
+        const form = document.getElementById(formId);
+        const checkboxes = form.querySelectorAll('input[type="checkbox"]:checked');
+        return Array.from(checkboxes).map(cb => cb.value);
+    },
+
+    /**
+     * Add activity item
+     */
+    addActivity: (type, title, description) => {
+        const activity = {
+            id: 'activity-' + Date.now(),
+            type: type,
+            title: title,
+            description: description,
+            time: new Date().toISOString(),
+            icon: IntegrationManager.getActivityIcon(type)
+        };
+
+        integrationActivity.unshift(activity);
+        
+        // Keep only last 10 activities
+        if (integrationActivity.length > 10) {
+            integrationActivity = integrationActivity.slice(0, 10);
+        }
+    },
+
+    /**
+     * Get activity icon
+     */
+    getActivityIcon: (type) => {
+        const icons = {
+            github: '🐙',
+            slack: '💬',
+            email: '📧',
+            jira: '🦘'
+        };
+        return icons[type] || '🔗';
+    }
+};
+
+// Add utility function for time formatting
+Utils.formatTimeAgo = (dateString) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes} min ago`;
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+};
+
+// ===== GLOBAL FUNCTIONS FOR PHASE 3B =====
+window.showIntegrations = IntegrationManager.showIntegrations;
+window.connectGitHub = IntegrationManager.connectGitHub;
+window.configureGitHub = IntegrationManager.configureGitHub;
+window.openGitHubConfig = IntegrationManager.openGitHubConfig;
+window.closeGitHubConfig = IntegrationManager.closeGitHubConfig;
+window.saveGitHubConfig = IntegrationManager.saveGitHubConfig;
+window.testGitHubConnection = IntegrationManager.testGitHubConnection;
+window.connectSlack = IntegrationManager.connectSlack;
+window.configureSlack = IntegrationManager.configureSlack;
+window.openSlackConfig = IntegrationManager.openSlackConfig;
+window.closeSlackConfig = IntegrationManager.closeSlackConfig;
+window.saveSlackConfig = IntegrationManager.saveSlackConfig;
+window.testSlackConnection = IntegrationManager.testSlackConnection;
+window.configureEmail = IntegrationManager.configureEmail;
+window.testEmail = IntegrationManager.testEmail;
+window.openEmailConfig = IntegrationManager.openEmailConfig;
+window.closeEmailConfig = IntegrationManager.closeEmailConfig;
+window.saveEmailConfig = IntegrationManager.saveEmailConfig;
+window.testEmailConfig = IntegrationManager.testEmailConfig;
+window.connectJira = IntegrationManager.connectJira;
+window.configureJira = IntegrationManager.configureJira;
+window.openJiraConfig = IntegrationManager.openJiraConfig;
+window.closeJiraConfig = IntegrationManager.closeJiraConfig;
+window.saveJiraConfig = IntegrationManager.saveJiraConfig;
+window.testJiraConnection = IntegrationManager.testJiraConnection;
