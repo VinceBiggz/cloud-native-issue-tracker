@@ -8,13 +8,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- Header -->
     <header class="header">
         <div class="header-content">
             <div class="header-left">
-                <a href="#" class="header-logo">🇰🇪 Issue Tracker</a>
+                <a href="#" class="header-logo">🐦 Issue Tracker</a>
                 <p class="header-title">Cloud-Native Issue Management</p>
             </div>
             <div class="header-right">
@@ -112,12 +113,12 @@
         <div id="appSection" class="app-section">
             <!-- Navigation Menu -->
             <div class="nav-menu">
-                <button class="nav-btn active" onclick="showDashboard()">📊 Dashboard</button>
-                <button class="nav-btn" onclick="showIssues()">📋 Issues</button>
-                <button class="nav-btn" onclick="showReports()">📈 Reports</button>
+                <button class="nav-btn active" onclick="showDashboard()">🏠 Dashboard</button>
+                <button class="nav-btn" onclick="showIssues()">📝 Issues</button>
+                <button class="nav-btn" onclick="showReports()">📊 Reports</button>
                 <button class="nav-btn" onclick="showTeams()">👥 Teams</button>
                 <button class="nav-btn" onclick="showIntegrations()">🔗 Integrations</button>
-                <button class="nav-btn" onclick="showAPI()">🔧 API Testing</button>
+                <button class="nav-btn" onclick="showAPI()">⚙️ API Testing</button>
             </div>
 
             <!-- Dashboard Section -->
@@ -131,36 +132,60 @@
                         </div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-icon">🟢</div>
+                        <div class="metric-icon">🔵</div>
                         <div class="metric-content">
                             <h3>Open Issues</h3>
                             <div class="metric-value" id="openIssues">0</div>
                         </div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-icon">🟡</div>
+                        <div class="metric-icon">🔄</div>
                         <div class="metric-content">
                             <h3>In Progress</h3>
                             <div class="metric-value" id="inProgressIssues">0</div>
                         </div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-icon">🔴</div>
+                        <div class="metric-icon">⚠️</div>
                         <div class="metric-content">
                             <h3>Critical Issues</h3>
                             <div class="metric-value" id="criticalIssues">0</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">✅</div>
+                        <div class="metric-content">
+                            <h3>Resolved</h3>
+                            <div class="metric-value" id="resolvedIssues">0</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📈</div>
+                        <div class="metric-content">
+                            <h3>Avg Resolution</h3>
+                            <div class="metric-value" id="avgResolution">2.5d</div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="dashboard-charts">
                     <div class="chart-card">
-                        <h3>Issues by Status</h3>
-                        <div id="statusChart" class="chart-container"></div>
+                        <h3>📈 Issues Over Time</h3>
+                        <div id="timeChart" class="chart-container"></div>
                     </div>
                     <div class="chart-card">
-                        <h3>Issues by Priority</h3>
-                        <div id="priorityChart" class="chart-container"></div>
+                        <div class="chart-card">
+                            <h3>📊 Issues by Status</h3>
+                            <div id="statusChart" class="chart-container"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>🎯 Issues by Priority</h3>
+                            <div id="priorityChart" class="chart-container"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>🏷️ Issues by Category</h3>
+                            <div id="categoryChart" class="chart-container"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -234,11 +259,56 @@
                         </div>
                     </div>
                     
+                    <!-- Issues Filtering -->
+                    <div class="issues-filters">
+                        <div class="filter-group">
+                            <label for="statusFilter">Status:</label>
+                            <select id="statusFilter" onchange="filterIssues()">
+                                <option value="">All Statuses</option>
+                                <option value="OPEN">Open</option>
+                                <option value="IN_PROGRESS">In Progress</option>
+                                <option value="RESOLVED">Resolved</option>
+                                <option value="CLOSED">Closed</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="priorityFilter">Priority:</label>
+                            <select id="priorityFilter" onchange="filterIssues()">
+                                <option value="">All Priorities</option>
+                                <option value="LOW">Low</option>
+                                <option value="MEDIUM">Medium</option>
+                                <option value="HIGH">High</option>
+                                <option value="CRITICAL">Critical</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="categoryFilter">Category:</label>
+                            <select id="categoryFilter" onchange="filterIssues()">
+                                <option value="">All Categories</option>
+                                <option value="BUG">Bug</option>
+                                <option value="FEATURE">Feature Request</option>
+                                <option value="ENHANCEMENT">Enhancement</option>
+                                <option value="DOCUMENTATION">Documentation</option>
+                                <option value="SUPPORT">Support</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="searchFilter">Search:</label>
+                            <input type="text" id="searchFilter" placeholder="Search issues..." onkeyup="filterIssues()">
+                        </div>
+                        <div class="filter-actions">
+                            <button onclick="clearFilters()" class="btn-secondary">🗑️ Clear Filters</button>
+                            <button onclick="selectAllIssues()" class="btn-secondary">☑️ Select All</button>
+                            <button onclick="bulkDelete()" class="btn-danger">🗑️ Bulk Delete</button>
+                        </div>
+                    </div>
+                    
                     <!-- Issues Table -->
                     <div class="issues-table-container">
                         <table class="issues-table" id="issuesTable">
                             <thead>
                                 <tr>
+                                    <th><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()"></th>
                                     <th>ID</th>
                                     <th>Title</th>
                                     <th>Category</th>

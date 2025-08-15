@@ -10,37 +10,53 @@
 
 /* ===== CSS VARIABLES ===== */
 :root {
-    /* Kenyan Flag Colors */
-    --kenya-black: #000000;
-    --kenya-red: #CE1126;
-    --kenya-green: #006600;
-    --kenya-white: #FFFFFF;
+    /* Classic Twitter/X Blue Color Scheme */
+    --twitter-blue: #1DA1F2;       /* Classic Twitter Blue */
+    --twitter-blue-dark: #1A91DA;  /* Darker Twitter Blue */
+    --twitter-blue-light: #1A8CD8; /* Light Twitter Blue */
+    --twitter-blue-hover: #1A8CD8; /* Hover State */
+    --twitter-black: #14171A;      /* Twitter Black */
+    --twitter-dark-gray: #657786;  /* Twitter Dark Gray */
+    --twitter-light-gray: #AAB8C2; /* Twitter Light Gray */
+    --twitter-extra-light-gray: #E1E8ED; /* Twitter Extra Light Gray */
+    --twitter-white: #FFFFFF;      /* Twitter White */
+    --twitter-red: #E0245E;        /* Twitter Red (for errors) */
+    --twitter-green: #17BF63;      /* Twitter Green (for success) */
     
-    /* Extended Color Palette */
-    --primary-color: var(--kenya-black);
-    --primary-dark: #1a1a1a;
-    --primary-light: #333333;
-    --secondary-color: var(--kenya-red);
-    --accent-color: var(--kenya-green);
-    --warning-color: #FF6B35;
-    --danger-color: #DC3545;
-    --success-color: var(--kenya-green);
+    /* Twitter Gradients */
+    --gradient-primary: linear-gradient(135deg, #1DA1F2 0%, #1A91DA 100%);
+    --gradient-secondary: linear-gradient(135deg, #1A8CD8 0%, #1DA1F2 100%);
+    --gradient-accent: linear-gradient(135deg, #1DA1F2 0%, #0D8BD9 100%);
+    --gradient-success: linear-gradient(135deg, #17BF63 0%, #15A052 100%);
+    --gradient-warning: linear-gradient(135deg, #FFAD1F 0%, #F7931E 100%);
+    --gradient-danger: linear-gradient(135deg, #E0245E 0%, #C01E4E 100%);
     
-    /* Neutral Colors */
-    --white: var(--kenya-white);
-    --gray-50: #F8F9FA;
-    --gray-100: #F1F3F4;
-    --gray-200: #E8EAED;
-    --gray-300: #DADCE0;
-    --gray-400: #BDC1C6;
-    --gray-500: #9AA0A6;
-    --gray-600: #80868B;
-    --gray-700: #5F6368;
-    --gray-800: #3C4043;
-    --gray-900: #202124;
+    /* Neutral Colors (Twitter Style) */
+    --white: #FFFFFF;
+    --gray-50: #F7F9FA;
+    --gray-100: #E1E8ED;
+    --gray-200: #AAB8C2;
+    --gray-300: #657786;
+    --gray-400: #657786;
+    --gray-500: #657786;
+    --gray-600: #657786;
+    --gray-700: #14171A;
+    --gray-800: #14171A;
+    --gray-900: #14171A;
     
-    /* Typography - Meta/Facebook Style */
-    --font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    /* Twitter Color Aliases */
+    --primary-color: var(--twitter-blue);
+    --primary-dark: var(--twitter-blue-dark);
+    --primary-light: var(--twitter-blue-light);
+    --secondary-color: var(--twitter-blue);
+    --accent-color: var(--twitter-blue);
+    --success-color: var(--twitter-green);
+    --warning-color: #FFAD1F;
+    --danger-color: var(--twitter-red);
+    --info-color: var(--twitter-blue);
+    
+    /* Typography - Twitter Style */
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     --font-size-xs: 0.75rem;
     --font-size-sm: 0.875rem;
     --font-size-base: 1rem;
@@ -91,8 +107,8 @@ body {
     font-family: var(--font-family);
     margin: 0;
     padding: 0;
-    background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
-    color: var(--gray-800);
+    background: linear-gradient(135deg, #F7F9FA 0%, #E1E8ED 100%);
+    color: var(--twitter-black);
     line-height: 1.6;
     font-size: var(--font-size-base);
     min-height: 100vh;
@@ -102,13 +118,14 @@ body {
 
 /* ===== HEADER STYLES ===== */
 .header {
-    background: linear-gradient(135deg, var(--kenya-black) 0%, var(--kenya-red) 50%, var(--kenya-green) 100%);
-    color: var(--white);
-    padding: var(--spacing-4) 0;
-    box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, var(--twitter-blue) 0%, var(--twitter-blue-dark) 100%);
+    color: var(--twitter-white);
+    padding: var(--spacing-6) 0;
+    box-shadow: 0 4px 20px rgba(29, 161, 242, 0.3);
     position: sticky;
     top: 0;
     z-index: 1000;
+    border-bottom: none;
 }
 
 .header-content {
@@ -130,13 +147,15 @@ body {
     font-size: var(--font-size-2xl);
     font-weight: 700;
     text-decoration: none;
-    color: var(--white);
+    color: var(--twitter-white);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .header-title {
     font-size: var(--font-size-lg);
-    opacity: 0.9;
+    color: rgba(255, 255, 255, 0.9);
     margin: 0;
+    font-weight: 400;
 }
 
 .header-right {
@@ -151,39 +170,41 @@ body {
 }
 
 .account-button {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: var(--white);
-    padding: var(--spacing-2) var(--spacing-4);
-    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--twitter-white);
+    padding: var(--spacing-3) var(--spacing-6);
+    border-radius: 9999px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: var(--spacing-2);
     font-size: var(--font-size-sm);
+    font-weight: 600;
     transition: all var(--transition-fast);
     backdrop-filter: blur(10px);
 }
 
 .account-button:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .account-dropdown {
     position: absolute;
     top: 100%;
     right: 0;
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-xl);
+    background: var(--twitter-white);
+    border-radius: 16px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     min-width: 200px;
     z-index: 1001;
     opacity: 0;
     visibility: hidden;
     transform: translateY(-10px);
     transition: all var(--transition-fast);
-    border: 1px solid var(--gray-200);
+    border: 1px solid var(--twitter-extra-light-gray);
 }
 
 .account-dropdown.show {
@@ -194,11 +215,16 @@ body {
 
 .account-dropdown-item {
     padding: var(--spacing-3) var(--spacing-4);
-    color: var(--gray-700);
+    color: var(--twitter-black);
     text-decoration: none;
     display: block;
     transition: background-color var(--transition-fast);
-    border-bottom: 1px solid var(--gray-100);
+    border-bottom: 1px solid var(--twitter-extra-light-gray);
+    font-weight: 500;
+}
+
+.account-dropdown-item:hover {
+    background: var(--twitter-extra-light-gray);
 }
 
 .account-dropdown-item:last-child {
@@ -407,11 +433,11 @@ body {
 
 .btn-primary {
     flex: 1;
-    background: linear-gradient(135deg, var(--kenya-black) 0%, var(--kenya-red) 100%);
-    color: var(--white);
+    background: linear-gradient(135deg, var(--twitter-blue) 0%, var(--twitter-blue-dark) 100%);
+    color: var(--twitter-white);
     border: none;
     padding: var(--spacing-4) var(--spacing-6);
-    border-radius: var(--radius-lg);
+    border-radius: 9999px;
     cursor: pointer;
     font-size: var(--font-size-base);
     font-weight: 600;
@@ -422,16 +448,16 @@ body {
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 4px 12px rgba(29, 161, 242, 0.3);
 }
 
 .btn-secondary {
     flex: 1;
-    background: var(--gray-100);
-    color: var(--gray-700);
-    border: 2px solid var(--gray-300);
+    background: var(--twitter-extra-light-gray);
+    color: var(--twitter-black);
+    border: 2px solid var(--twitter-light-gray);
     padding: var(--spacing-4) var(--spacing-6);
-    border-radius: var(--radius-lg);
+    border-radius: 9999px;
     cursor: pointer;
     font-size: var(--font-size-base);
     font-weight: 600;
@@ -439,9 +465,10 @@ body {
 }
 
 .btn-secondary:hover {
-    background: var(--gray-200);
-    border-color: var(--gray-400);
+    background: var(--twitter-light-gray);
+    border-color: var(--twitter-dark-gray);
     transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .auth-response {
@@ -479,38 +506,43 @@ body {
     display: flex;
     gap: var(--spacing-3);
     margin-bottom: var(--spacing-8);
-    background: var(--white);
-    border-radius: var(--radius-xl);
+    background: var(--twitter-white);
+    border-radius: 16px;
     padding: var(--spacing-4);
-    box-shadow: var(--shadow-md);
-    border: 1px solid var(--gray-200);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--twitter-extra-light-gray);
 }
 
 .nav-btn {
-    background: var(--gray-100);
-    color: var(--gray-700);
-    border: 2px solid var(--gray-200);
+    background: none;
+    color: var(--twitter-dark-gray);
+    border: none;
     padding: var(--spacing-3) var(--spacing-6);
-    border-radius: var(--radius-lg);
+    border-radius: 9999px;
     cursor: pointer;
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     font-weight: 600;
     transition: all var(--transition-fast);
     flex: 1;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
 }
 
 .nav-btn.active {
-    background: linear-gradient(135deg, var(--kenya-black) 0%, var(--kenya-red) 100%);
-    color: var(--white);
-    border-color: var(--kenya-red);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    background: var(--twitter-blue);
+    color: var(--twitter-white);
+    transform: none;
+    box-shadow: none;
 }
 
 .nav-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    background: var(--twitter-extra-light-gray);
+    color: var(--twitter-black);
+    transform: none;
+    box-shadow: none;
 }
 
 /* ===== CONTENT SECTIONS ===== */
@@ -525,21 +557,33 @@ body {
 /* ===== DASHBOARD STYLES ===== */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: var(--spacing-6);
     margin-bottom: var(--spacing-8);
 }
 
+@media (max-width: 1200px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .metric-card {
-    background: var(--white);
-    border-radius: var(--radius-xl);
+    background: var(--twitter-white);
+    border-radius: 16px;
     padding: var(--spacing-6);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
     gap: var(--spacing-5);
     transition: all var(--transition-normal);
-    border: 1px solid var(--gray-200);
+    border: 1px solid var(--twitter-extra-light-gray);
     position: relative;
     overflow: hidden;
 }
@@ -551,8 +595,15 @@ body {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, var(--kenya-black), var(--kenya-red));
+    background: linear-gradient(90deg, var(--twitter-blue) 0%, var(--twitter-blue-dark) 100%);
 }
+
+.metric-card:nth-child(1)::before { background: linear-gradient(90deg, #17BF63 0%, #15A052 100%); }
+.metric-card:nth-child(2)::before { background: linear-gradient(90deg, #1DA1F2 0%, #1A91DA 100%); }
+.metric-card:nth-child(3)::before { background: linear-gradient(90deg, #FFAD1F 0%, #F7931E 100%); }
+.metric-card:nth-child(4)::before { background: linear-gradient(90deg, #E0245E 0%, #C01E4E 100%); }
+.metric-card:nth-child(5)::before { background: linear-gradient(90deg, #17BF63 0%, #15A052 100%); }
+.metric-card:nth-child(6)::before { background: linear-gradient(90deg, #1DA1F2 0%, #1A91DA 100%); }
 
 .metric-card:hover {
     transform: translateY(-4px);
@@ -568,14 +619,27 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--kenya-black) 0%, var(--kenya-red) 100%);
-    color: var(--white);
-    box-shadow: var(--shadow-md);
+    background: var(--twitter-blue);
+    color: var(--twitter-white);
+    box-shadow: 0 4px 12px rgba(29, 161, 242, 0.3);
+    transition: all var(--transition-normal);
+}
+
+.metric-card:nth-child(1) .metric-icon { background: linear-gradient(135deg, #17BF63 0%, #15A052 100%); box-shadow: 0 4px 12px rgba(23, 191, 99, 0.3); }
+.metric-card:nth-child(2) .metric-icon { background: linear-gradient(135deg, #1DA1F2 0%, #1A91DA 100%); box-shadow: 0 4px 12px rgba(29, 161, 242, 0.3); }
+.metric-card:nth-child(3) .metric-icon { background: linear-gradient(135deg, #FFAD1F 0%, #F7931E 100%); box-shadow: 0 4px 12px rgba(255, 173, 31, 0.3); }
+.metric-card:nth-child(4) .metric-icon { background: linear-gradient(135deg, #E0245E 0%, #C01E4E 100%); box-shadow: 0 4px 12px rgba(224, 36, 94, 0.3); }
+.metric-card:nth-child(5) .metric-icon { background: linear-gradient(135deg, #17BF63 0%, #15A052 100%); box-shadow: 0 4px 12px rgba(23, 191, 99, 0.3); }
+.metric-card:nth-child(6) .metric-icon { background: linear-gradient(135deg, #1DA1F2 0%, #1A91DA 100%); box-shadow: 0 4px 12px rgba(29, 161, 242, 0.3); }
+
+.metric-icon:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(29, 161, 242, 0.4);
 }
 
 .metric-content h3 {
     margin: 0 0 var(--spacing-2) 0;
-    color: var(--gray-600);
+    color: var(--twitter-dark-gray);
     font-size: var(--font-size-sm);
     font-weight: 600;
     text-transform: uppercase;
@@ -585,61 +649,207 @@ body {
 .metric-value {
     font-size: var(--font-size-3xl);
     font-weight: 800;
-    color: var(--gray-800);
+    color: var(--twitter-black);
     letter-spacing: -0.025em;
 }
 
 .dashboard-charts {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    display: flex;
+    flex-direction: column;
     gap: var(--spacing-6);
 }
 
-.chart-card {
-    background: var(--white);
-    border-radius: var(--radius-xl);
+.dashboard-charts .chart-card:first-child {
+    width: 100%;
+    margin-bottom: var(--spacing-6);
+}
+
+.dashboard-charts .chart-card:not(:first-child) {
+    display: flex;
+    gap: var(--spacing-4);
+    width: 100%;
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+}
+
+.dashboard-charts .chart-card:not(:first-child) .chart-card {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
     padding: var(--spacing-6);
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--gray-200);
+    display: flex;
+    flex-direction: column;
+    background: var(--twitter-white);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--twitter-extra-light-gray);
+    transition: all var(--transition-normal);
+}
+
+.dashboard-charts .chart-card:not(:first-child) .chart-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-charts .chart-card:not(:first-child) .chart-card h3 {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-4);
+    text-align: center;
+    order: -1;
+    color: var(--twitter-black);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+}
+
+.dashboard-charts .chart-card:not(:first-child) .chart-container {
+    height: 250px;
+    flex: 1;
+}
+
+@media (max-width: 1200px) {
+    .dashboard-charts .chart-card:not(:first-child) {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-charts .chart-card:not(:first-child) {
+        flex-direction: column;
+    }
+}
+
+.chart-card {
+    background: var(--twitter-white);
+    border-radius: 16px;
+    padding: var(--spacing-6);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--twitter-extra-light-gray);
+    transition: all var(--transition-normal);
+}
+
+.chart-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
 .chart-card h3 {
     margin: 0 0 var(--spacing-5) 0;
-    color: var(--gray-800);
+    color: var(--twitter-black);
     font-size: var(--font-size-xl);
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
 }
 
 .chart-container {
-    height: 250px;
+    height: 300px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--gray-50);
-    border-radius: var(--radius-lg);
-    color: var(--gray-500);
+    background: var(--twitter-extra-light-gray);
+    border-radius: 12px;
+    color: var(--twitter-dark-gray);
     font-size: var(--font-size-sm);
-    border: 2px dashed var(--gray-300);
+    border: 2px dashed var(--twitter-light-gray);
+    position: relative;
+    overflow: hidden;
+}
+
+.chart-container canvas {
+    border-radius: var(--radius-lg);
+    max-width: 100%;
+    max-height: 100%;
 }
 
 /* ===== ISSUES SECTION ===== */
 .issues-container {
-    background: var(--white);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-lg);
+    background: var(--twitter-white);
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    border: 1px solid var(--gray-200);
+    border: 1px solid var(--twitter-extra-light-gray);
+}
+
+/* Issues Filtering */
+.issues-filters {
+    display: flex;
+    gap: var(--spacing-4);
+    padding: var(--spacing-6);
+    background: var(--twitter-extra-light-gray);
+    border-bottom: 1px solid var(--twitter-light-gray);
+    flex-wrap: wrap;
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    min-width: 150px;
+}
+
+.filter-group label {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--twitter-black);
+}
+
+.filter-group select,
+.filter-group input {
+    padding: var(--spacing-2) var(--spacing-3);
+    border: 1px solid var(--twitter-light-gray);
+    border-radius: 9999px;
+    font-size: var(--font-size-sm);
+    background: var(--twitter-white);
+    transition: all var(--transition-fast);
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+    outline: none;
+    border-color: var(--twitter-blue);
+    box-shadow: 0 0 0 3px rgba(29, 161, 242, 0.1);
+}
+
+.filter-actions {
+    display: flex;
+    gap: var(--spacing-2);
+    margin-left: auto;
+}
+
+.btn-danger {
+    background: var(--twitter-red);
+    color: var(--twitter-white);
+    border: none;
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: 9999px;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    transition: all var(--transition-fast);
+}
+
+.btn-danger:hover {
+    background: #C01E4E;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(224, 36, 94, 0.3);
 }
 
 .issues-header {
     padding: var(--spacing-6);
-    border-bottom: 1px solid var(--gray-200);
-    background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+    border-bottom: 1px solid var(--twitter-light-gray);
+    background: var(--twitter-extra-light-gray);
 }
 
 .issues-header h2 {
     margin: 0 0 var(--spacing-4) 0;
-    color: var(--gray-800);
+    color: var(--twitter-black);
     font-size: var(--font-size-2xl);
     font-weight: 700;
 }
@@ -661,12 +871,12 @@ body {
 .issues-table {
     width: 100%;
     border-collapse: collapse;
-    background: var(--white);
+    background: var(--twitter-white);
 }
 
 .issues-table th {
-    background: linear-gradient(135deg, var(--kenya-black) 0%, var(--kenya-red) 100%);
-    color: var(--white);
+    background: var(--twitter-blue);
+    color: var(--twitter-white);
     padding: var(--spacing-4);
     text-align: left;
     font-weight: 600;
@@ -677,12 +887,12 @@ body {
 
 .issues-table td {
     padding: var(--spacing-4);
-    border-bottom: 1px solid var(--gray-200);
+    border-bottom: 1px solid var(--twitter-extra-light-gray);
     font-size: var(--font-size-sm);
 }
 
 .issues-table tr:hover {
-    background: var(--gray-50);
+    background: var(--twitter-extra-light-gray);
 }
 
 .issues-table tr:last-child td {
@@ -702,27 +912,27 @@ body {
 }
 
 .status-badge.open {
-    background: rgba(0, 102, 0, 0.1);
-    color: var(--kenya-green);
-    border: 1px solid rgba(0, 102, 0, 0.2);
+    background: rgba(23, 191, 99, 0.1);
+    color: var(--twitter-green);
+    border: 1px solid rgba(23, 191, 99, 0.2);
 }
 
 .status-badge.in-progress {
-    background: rgba(255, 107, 53, 0.1);
-    color: var(--warning-color);
-    border: 1px solid rgba(255, 107, 53, 0.2);
+    background: rgba(29, 161, 242, 0.1);
+    color: var(--twitter-blue);
+    border: 1px solid rgba(29, 161, 242, 0.2);
 }
 
 .status-badge.resolved {
-    background: rgba(0, 0, 0, 0.1);
-    color: var(--kenya-black);
-    border: 1px solid rgba(0, 0, 0, 0.2);
+    background: rgba(29, 161, 242, 0.1);
+    color: var(--twitter-blue);
+    border: 1px solid rgba(29, 161, 242, 0.2);
 }
 
 .status-badge.closed {
-    background: rgba(128, 128, 128, 0.1);
-    color: var(--gray-600);
-    border: 1px solid rgba(128, 128, 128, 0.2);
+    background: rgba(101, 119, 134, 0.1);
+    color: var(--twitter-dark-gray);
+    border: 1px solid rgba(101, 119, 134, 0.2);
 }
 
 .priority-badge {
@@ -737,27 +947,27 @@ body {
 }
 
 .priority-badge.low {
-    background: rgba(0, 102, 0, 0.1);
-    color: var(--kenya-green);
-    border: 1px solid rgba(0, 102, 0, 0.2);
+    background: rgba(23, 191, 99, 0.1);
+    color: var(--twitter-green);
+    border: 1px solid rgba(23, 191, 99, 0.2);
 }
 
 .priority-badge.medium {
-    background: rgba(255, 107, 53, 0.1);
-    color: var(--warning-color);
-    border: 1px solid rgba(255, 107, 53, 0.2);
+    background: rgba(255, 173, 31, 0.1);
+    color: #FFAD1F;
+    border: 1px solid rgba(255, 173, 31, 0.2);
 }
 
 .priority-badge.high {
-    background: rgba(206, 17, 38, 0.1);
-    color: var(--kenya-red);
-    border: 1px solid rgba(206, 17, 38, 0.2);
+    background: rgba(224, 36, 94, 0.1);
+    color: var(--twitter-red);
+    border: 1px solid rgba(224, 36, 94, 0.2);
 }
 
 .priority-badge.critical {
-    background: rgba(0, 0, 0, 0.1);
-    color: var(--kenya-black);
-    border: 1px solid rgba(0, 0, 0, 0.2);
+    background: rgba(29, 161, 242, 0.1);
+    color: var(--twitter-blue);
+    border: 1px solid rgba(29, 161, 242, 0.2);
 }
 
 /* ===== PAGINATION ===== */
@@ -838,10 +1048,12 @@ body {
 
 /* ===== FOOTER ===== */
 .footer {
-    background: linear-gradient(135deg, var(--kenya-black) 0%, var(--kenya-red) 50%, var(--kenya-green) 100%);
-    color: var(--white);
+    background: linear-gradient(135deg, var(--twitter-black) 0%, #2C3E50 100%);
+    color: var(--twitter-white);
     padding: var(--spacing-8) 0;
     margin-top: auto;
+    border-top: none;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .footer-content {
@@ -864,14 +1076,15 @@ body {
 }
 
 .footer-link {
-    color: var(--white);
+    color: var(--twitter-blue);
     text-decoration: none;
-    opacity: 0.8;
-    transition: opacity var(--transition-fast);
+    transition: all var(--transition-fast);
+    font-weight: 500;
 }
 
 .footer-link:hover {
-    opacity: 1;
+    color: var(--twitter-white);
+    text-shadow: 0 0 8px rgba(29, 161, 242, 0.5);
 }
 
 /* ===== RESPONSIVE DESIGN ===== */

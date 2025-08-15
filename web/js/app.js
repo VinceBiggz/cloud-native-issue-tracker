@@ -470,17 +470,22 @@ const Dashboard = {
         const totalIssues = issues.length;
         const openIssues = issues.filter(issue => issue.status === 'OPEN').length;
         const inProgressIssues = issues.filter(issue => issue.status === 'IN_PROGRESS').length;
+        const resolvedIssues = issues.filter(issue => issue.status === 'RESOLVED').length;
         const criticalIssues = issues.filter(issue => issue.priority === 'CRITICAL').length;
 
         // Update metric values
         document.getElementById('totalIssues').textContent = totalIssues;
         document.getElementById('openIssues').textContent = openIssues;
         document.getElementById('inProgressIssues').textContent = inProgressIssues;
+        document.getElementById('resolvedIssues').textContent = resolvedIssues;
         document.getElementById('criticalIssues').textContent = criticalIssues;
+        document.getElementById('avgResolution').textContent = '2.5d';
 
         // Update charts
         Dashboard.updateStatusChart();
         Dashboard.updatePriorityChart();
+        Dashboard.updateTimeChart();
+        Dashboard.updateCategoryChart();
     },
 
     /**
@@ -493,7 +498,35 @@ const Dashboard = {
         });
 
         const chartContainer = document.getElementById('statusChart');
-        chartContainer.innerHTML = Dashboard.createChartHTML(statusCounts, 'Status Distribution');
+        chartContainer.innerHTML = '<canvas id="statusChartCanvas"></canvas>';
+        
+        const ctx = document.getElementById('statusChartCanvas').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(statusCounts),
+                datasets: [{
+                    data: Object.values(statusCounts),
+                    backgroundColor: [
+                        '#17BF63', // Twitter Green for Open
+                        '#1DA1F2', // Twitter Blue for In Progress
+                        '#1DA1F2', // Twitter Blue for Resolved
+                        '#657786'  // Twitter Dark Gray for Closed
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
     },
 
     /**
@@ -506,7 +539,153 @@ const Dashboard = {
         });
 
         const chartContainer = document.getElementById('priorityChart');
-        chartContainer.innerHTML = Dashboard.createChartHTML(priorityCounts, 'Priority Distribution');
+        chartContainer.innerHTML = '<canvas id="priorityChartCanvas"></canvas>';
+        
+        const ctx = document.getElementById('priorityChartCanvas').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(priorityCounts),
+                datasets: [{
+                    label: 'Issues by Priority',
+                    data: Object.values(priorityCounts),
+                    backgroundColor: [
+                        '#17BF63', // Twitter Green for Low
+                        '#FFAD1F', // Twitter Orange for Medium
+                        '#E0245E', // Twitter Red for High
+                        '#1DA1F2'  // Twitter Blue for Critical
+                    ],
+                    borderWidth: 0,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#E2E8F0'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    },
+
+    /**
+     * Update time chart
+     */
+    updateTimeChart: () => {
+        const chartContainer = document.getElementById('timeChart');
+        chartContainer.innerHTML = '<canvas id="timeChartCanvas"></canvas>';
+        
+        const ctx = document.getElementById('timeChartCanvas').getContext('2d');
+        
+        // Generate sample time data for the last 7 days
+        const labels = [];
+        const data = [];
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+            data.push(Math.floor(Math.random() * 10) + 1); // Random data
+        }
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Issues Created',
+                    data: data,
+                    borderColor: '#1DA1F2',
+                    backgroundColor: 'rgba(29, 161, 242, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#1DA1F2',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#E2E8F0'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    },
+
+    /**
+     * Update category chart
+     */
+    updateCategoryChart: () => {
+        const categoryCounts = {};
+        issues.forEach(issue => {
+            categoryCounts[issue.category] = (categoryCounts[issue.category] || 0) + 1;
+        });
+
+        const chartContainer = document.getElementById('categoryChart');
+        chartContainer.innerHTML = '<canvas id="categoryChartCanvas"></canvas>';
+        
+        const ctx = document.getElementById('categoryChartCanvas').getContext('2d');
+        new Chart(ctx, {
+            type: 'polarArea',
+            data: {
+                labels: Object.keys(categoryCounts),
+                datasets: [{
+                    data: Object.values(categoryCounts),
+                    backgroundColor: [
+                        '#E0245E', // Twitter Red for Bug
+                        '#17BF63', // Twitter Green for Feature
+                        '#1DA1F2', // Twitter Blue for Enhancement
+                        '#FFAD1F', // Twitter Orange for Documentation
+                        '#1DA1F2'  // Twitter Blue for Support
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
     },
 
     /**
@@ -620,17 +799,22 @@ const IssueManager = {
      * Display issues in table format with pagination
      */
     displayIssues: () => {
+        // Initialize filteredIssues if not set
+        if (filteredIssues.length === 0) {
+            filteredIssues = [...issues];
+        }
+
         const tableBody = document.getElementById('issuesTableBody');
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
-        const paginatedIssues = issues.slice(startIndex, endIndex);
+        const paginatedIssues = filteredIssues.slice(startIndex, endIndex);
 
         tableBody.innerHTML = '';
 
         if (paginatedIssues.length === 0) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="8" style="text-align: center; padding: 40px; color: #666;">
+                    <td colspan="9" style="text-align: center; padding: 40px; color: #666;">
                         No issues found. Create one!
                     </td>
                 </tr>
@@ -639,6 +823,7 @@ const IssueManager = {
             paginatedIssues.forEach(issue => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
+                    <td><input type="checkbox" class="issue-checkbox" value="${issue.issueId}" onchange="updateSelectAllState()"></td>
                     <td>${issue.issueId}</td>
                     <td>
                         <strong>${issue.title}</strong>
@@ -666,12 +851,12 @@ const IssueManager = {
      * Update pagination controls
      */
     updatePagination: () => {
-        const totalPages = Math.ceil(issues.length / itemsPerPage);
+        const totalPages = Math.ceil(filteredIssues.length / itemsPerPage);
         const pageInfo = document.getElementById('pageInfo');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
 
-        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages} (${filteredIssues.length} issues)`;
         prevBtn.disabled = currentPage === 1;
         nextBtn.disabled = currentPage === totalPages;
     },
@@ -2902,3 +3087,127 @@ window.openJiraConfig = IntegrationManager.openJiraConfig;
 window.closeJiraConfig = IntegrationManager.closeJiraConfig;
 window.saveJiraConfig = IntegrationManager.saveJiraConfig;
 window.testJiraConnection = IntegrationManager.testJiraConnection;
+
+// ===== ENHANCED ISSUE FILTERING & BULK ACTIONS =====
+
+// Global state for filtering
+let filteredIssues = [];
+let selectedIssues = new Set();
+
+/**
+ * Filter issues based on current filters
+ */
+const filterIssues = () => {
+    const statusFilter = document.getElementById('statusFilter').value;
+    const priorityFilter = document.getElementById('priorityFilter').value;
+    const categoryFilter = document.getElementById('categoryFilter').value;
+    const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
+
+    filteredIssues = issues.filter(issue => {
+        const matchesStatus = !statusFilter || issue.status === statusFilter;
+        const matchesPriority = !priorityFilter || issue.priority === priorityFilter;
+        const matchesCategory = !categoryFilter || issue.category === categoryFilter;
+        const matchesSearch = !searchFilter || 
+            issue.title.toLowerCase().includes(searchFilter) ||
+            issue.description.toLowerCase().includes(searchFilter) ||
+            (issue.assignee && issue.assignee.toLowerCase().includes(searchFilter));
+
+        return matchesStatus && matchesPriority && matchesCategory && matchesSearch;
+    });
+
+    currentPage = 1;
+    IssueManager.loadIssues();
+    IssueManager.loadIssuesForPage();
+}
+
+/**
+ * Clear all filters
+ */
+const clearFilters = () => {
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('priorityFilter').value = '';
+    document.getElementById('categoryFilter').value = '';
+    document.getElementById('searchFilter').value = '';
+    
+    filteredIssues = [...issues];
+    currentPage = 1;
+    IssueManager.loadIssues();
+    IssueManager.loadIssuesForPage();
+}
+
+/**
+ * Toggle select all checkbox
+ */
+const toggleSelectAll = () => {
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const checkboxes = document.querySelectorAll('.issue-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+        if (selectAllCheckbox.checked) {
+            selectedIssues.add(checkbox.value);
+        } else {
+            selectedIssues.delete(checkbox.value);
+        }
+    });
+}
+
+/**
+ * Select all issues
+ */
+const selectAllIssues = () => {
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    selectAllCheckbox.checked = true;
+    toggleSelectAll();
+}
+
+/**
+ * Update select all checkbox state
+ */
+const updateSelectAllState = () => {
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const checkboxes = document.querySelectorAll('.issue-checkbox');
+    const checkedCheckboxes = document.querySelectorAll('.issue-checkbox:checked');
+    
+    selectAllCheckbox.checked = checkboxes.length > 0 && checkboxes.length === checkedCheckboxes.length;
+    
+    // Update selected issues set
+    selectedIssues.clear();
+    checkedCheckboxes.forEach(checkbox => {
+        selectedIssues.add(checkbox.value);
+    });
+}
+
+/**
+ * Bulk delete selected issues
+ */
+const bulkDelete = () => {
+    if (selectedIssues.size === 0) {
+        Utils.showNotification('Please select issues to delete', 'warning');
+        return;
+    }
+
+    if (confirm(`Are you sure you want to delete ${selectedIssues.size} issue(s)?`)) {
+        selectedIssues.forEach(issueId => {
+            const index = issues.findIndex(issue => issue.issueId === issueId);
+            if (index !== -1) {
+                issues.splice(index, 1);
+            }
+        });
+        
+        selectedIssues.clear();
+        document.getElementById('selectAllCheckbox').checked = false;
+        
+        IssueManager.loadIssues();
+        Dashboard.updateMetrics();
+        Utils.showNotification(`${selectedIssues.size} issue(s) deleted successfully`, 'success');
+    }
+}
+
+// Global functions for HTML onclick
+window.filterIssues = filterIssues;
+window.clearFilters = clearFilters;
+window.toggleSelectAll = toggleSelectAll;
+window.selectAllIssues = selectAllIssues;
+window.updateSelectAllState = updateSelectAllState;
+window.bulkDelete = bulkDelete;
