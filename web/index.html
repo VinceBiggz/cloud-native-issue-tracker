@@ -114,6 +114,8 @@
             <div class="nav-menu">
                 <button class="nav-btn active" onclick="showDashboard()">📊 Dashboard</button>
                 <button class="nav-btn" onclick="showIssues()">📋 Issues</button>
+                <button class="nav-btn" onclick="showReports()">📈 Reports</button>
+                <button class="nav-btn" onclick="showTeams()">👥 Teams</button>
                 <button class="nav-btn" onclick="showAPI()">🔧 API Testing</button>
             </div>
 
@@ -257,6 +259,620 @@
                         <button class="pagination-button" onclick="previousPage()" id="prevBtn">← Previous</button>
                         <span class="pagination-info" id="pageInfo">Page 1 of 1</span>
                         <button class="pagination-button" onclick="nextPage()" id="nextBtn">Next →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Issue Details Modal -->
+            <div id="issueModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="modalIssueTitle">Issue Details</h2>
+                        <button class="modal-close" onclick="closeIssueModal()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="issue-details-grid">
+                            <!-- Issue Information -->
+                            <div class="issue-info-section">
+                                <h3>📋 Issue Information</h3>
+                                <div class="issue-info-grid">
+                                    <div class="info-item">
+                                        <label>Status:</label>
+                                        <select id="modalIssueStatus" onchange="updateIssueStatus()">
+                                            <option value="OPEN">Open</option>
+                                            <option value="IN_PROGRESS">In Progress</option>
+                                            <option value="RESOLVED">Resolved</option>
+                                            <option value="CLOSED">Closed</option>
+                                        </select>
+                                    </div>
+                                    <div class="info-item">
+                                        <label>Priority:</label>
+                                        <select id="modalIssuePriority" onchange="updateIssuePriority()">
+                                            <option value="LOW">Low</option>
+                                            <option value="MEDIUM">Medium</option>
+                                            <option value="HIGH">High</option>
+                                            <option value="CRITICAL">Critical</option>
+                                        </select>
+                                    </div>
+                                    <div class="info-item">
+                                        <label>Assignee:</label>
+                                        <select id="modalIssueAssignee" onchange="updateIssueAssignee()">
+                                            <option value="">Unassigned</option>
+                                            <option value="admin@example.com">Admin User</option>
+                                            <option value="support@example.com">Support Staff</option>
+                                        </select>
+                                    </div>
+                                    <div class="info-item">
+                                        <label>Category:</label>
+                                        <span id="modalIssueCategory">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <label>Created:</label>
+                                        <span id="modalIssueCreated">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <label>Updated:</label>
+                                        <span id="modalIssueUpdated">-</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="issue-description">
+                                    <h4>Description</h4>
+                                    <p id="modalIssueDescription">-</p>
+                                </div>
+                                
+                                <div class="issue-tags">
+                                    <h4>Tags</h4>
+                                    <div id="modalIssueTags" class="tags-container">-</div>
+                                </div>
+                                
+                                <div class="issue-attachments">
+                                    <h4>Attachments</h4>
+                                    <div id="modalIssueAttachments" class="attachments-container">-</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Comments Section -->
+                            <div class="comments-section">
+                                <h3>💬 Comments</h3>
+                                <div class="comments-container" id="commentsContainer">
+                                    <!-- Comments will be loaded here -->
+                                </div>
+                                
+                                <div class="add-comment">
+                                    <h4>Add Comment</h4>
+                                    <textarea id="newCommentText" placeholder="Write your comment here..." rows="3"></textarea>
+                                    <div class="comment-actions">
+                                        <button onclick="addComment()" class="btn-primary">💬 Add Comment</button>
+                                        <button onclick="addTimeEntry()" class="btn-secondary">⏱️ Add Time Entry</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Time Tracking Section -->
+                            <div class="time-tracking-section">
+                                <h3>⏱️ Time Tracking</h3>
+                                <div class="time-summary">
+                                    <div class="time-item">
+                                        <label>Total Time:</label>
+                                        <span id="totalTimeSpent">0h 0m</span>
+                                    </div>
+                                    <div class="time-item">
+                                        <label>Estimated:</label>
+                                        <span id="estimatedTime">-</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="time-entries" id="timeEntriesContainer">
+                                    <!-- Time entries will be loaded here -->
+                                </div>
+                                
+                                <div class="start-timer">
+                                    <button id="timerButton" onclick="toggleTimer()" class="btn-accent">▶️ Start Timer</button>
+                                    <span id="timerDisplay" class="timer-display">00:00:00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="saveIssueChanges()" class="btn-primary">💾 Save Changes</button>
+                        <button onclick="closeIssueModal()" class="btn-secondary">❌ Close</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reportsSection" class="content-section">
+                <div class="reports-container">
+                    <div class="reports-header">
+                        <h2>📈 Advanced Reports & Analytics</h2>
+                        <p>Generate comprehensive reports and analyze issue trends</p>
+                    </div>
+
+                    <!-- Report Filters -->
+                    <div class="report-filters">
+                        <div class="filter-group">
+                            <label for="reportDateRange">Date Range:</label>
+                            <select id="reportDateRange">
+                                <option value="7">Last 7 days</option>
+                                <option value="30" selected>Last 30 days</option>
+                                <option value="90">Last 90 days</option>
+                                <option value="365">Last year</option>
+                                <option value="custom">Custom range</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="reportCategory">Category:</label>
+                            <select id="reportCategory">
+                                <option value="all">All Categories</option>
+                                <option value="BUG">Bugs</option>
+                                <option value="FEATURE">Features</option>
+                                <option value="ENHANCEMENT">Enhancements</option>
+                                <option value="DOCUMENTATION">Documentation</option>
+                                <option value="SUPPORT">Support</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="reportAssignee">Assignee:</label>
+                            <select id="reportAssignee">
+                                <option value="all">All Assignees</option>
+                                <option value="admin@example.com">Admin User</option>
+                                <option value="support@example.com">Support Staff</option>
+                                <option value="unassigned">Unassigned</option>
+                            </select>
+                        </div>
+                        <button onclick="generateReport()" class="btn-primary">📊 Generate Report</button>
+                    </div>
+
+                    <!-- Report Types -->
+                    <div class="report-types">
+                        <div class="report-type-card" onclick="showReportType('summary')">
+                            <div class="report-icon">📋</div>
+                            <h3>Summary Report</h3>
+                            <p>Overview of key metrics and trends</p>
+                        </div>
+                        <div class="report-type-card" onclick="showReportType('trends')">
+                            <div class="report-icon">📈</div>
+                            <h3>Trend Analysis</h3>
+                            <p>Issue trends over time with charts</p>
+                        </div>
+                        <div class="report-type-card" onclick="showReportType('performance')">
+                            <div class="report-icon">⚡</div>
+                            <h3>Performance Report</h3>
+                            <p>Resolution times and team performance</p>
+                        </div>
+                        <div class="report-type-card" onclick="showReportType('custom')">
+                            <div class="report-icon">🔧</div>
+                            <h3>Custom Report</h3>
+                            <p>Build your own custom report</p>
+                        </div>
+                    </div>
+
+                    <!-- Report Content -->
+                    <div id="reportContent" class="report-content">
+                        <!-- Summary Report -->
+                        <div id="summaryReport" class="report-section">
+                            <div class="report-header">
+                                <h3>📋 Summary Report</h3>
+                                <div class="report-actions">
+                                    <button onclick="exportReport('pdf')" class="btn-secondary">📄 Export PDF</button>
+                                    <button onclick="exportReport('csv')" class="btn-secondary">📊 Export CSV</button>
+                                    <button onclick="exportReport('excel')" class="btn-secondary">📈 Export Excel</button>
+                                </div>
+                            </div>
+                            
+                            <div class="summary-metrics">
+                                <div class="metric-row">
+                                    <div class="metric-item">
+                                        <h4>Total Issues</h4>
+                                        <div class="metric-number" id="reportTotalIssues">0</div>
+                                    </div>
+                                    <div class="metric-item">
+                                        <h4>Resolution Rate</h4>
+                                        <div class="metric-number" id="reportResolutionRate">0%</div>
+                                    </div>
+                                    <div class="metric-item">
+                                        <h4>Avg Resolution Time</h4>
+                                        <div class="metric-number" id="reportAvgResolutionTime">0 days</div>
+                                    </div>
+                                    <div class="metric-item">
+                                        <h4>Team Velocity</h4>
+                                        <div class="metric-number" id="reportTeamVelocity">0 issues/week</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="report-charts">
+                                <div class="chart-container">
+                                    <h4>Issues by Status</h4>
+                                    <div id="reportStatusChart" class="chart"></div>
+                                </div>
+                                <div class="chart-container">
+                                    <h4>Issues by Priority</h4>
+                                    <div id="reportPriorityChart" class="chart"></div>
+                                </div>
+                                <div class="chart-container">
+                                    <h4>Issues by Category</h4>
+                                    <div id="reportCategoryChart" class="chart"></div>
+                                </div>
+                                <div class="chart-container">
+                                    <h4>Issues Over Time</h4>
+                                    <div id="reportTimeChart" class="chart"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trends Report -->
+                        <div id="trendsReport" class="report-section" style="display: none;">
+                            <div class="report-header">
+                                <h3>📈 Trend Analysis</h3>
+                                <div class="report-actions">
+                                    <button onclick="exportReport('pdf')" class="btn-secondary">📄 Export PDF</button>
+                                    <button onclick="exportReport('csv')" class="btn-secondary">📊 Export CSV</button>
+                                </div>
+                            </div>
+                            
+                            <div class="trends-charts">
+                                <div class="chart-container full-width">
+                                    <h4>Issue Volume Trends</h4>
+                                    <div id="trendsVolumeChart" class="chart"></div>
+                                </div>
+                                <div class="chart-container">
+                                    <h4>Resolution Time Trends</h4>
+                                    <div id="trendsResolutionChart" class="chart"></div>
+                                </div>
+                                <div class="chart-container">
+                                    <h4>Priority Distribution Trends</h4>
+                                    <div id="trendsPriorityChart" class="chart"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Performance Report -->
+                        <div id="performanceReport" class="report-section" style="display: none;">
+                            <div class="report-header">
+                                <h3>⚡ Performance Report</h3>
+                                <div class="report-actions">
+                                    <button onclick="exportReport('pdf')" class="btn-secondary">📄 Export PDF</button>
+                                    <button onclick="exportReport('csv')" class="btn-secondary">📊 Export CSV</button>
+                                </div>
+                            </div>
+                            
+                            <div class="performance-metrics">
+                                <div class="performance-grid">
+                                    <div class="performance-card">
+                                        <h4>Team Performance</h4>
+                                        <div id="teamPerformanceChart" class="chart"></div>
+                                    </div>
+                                    <div class="performance-card">
+                                        <h4>Resolution Time by Category</h4>
+                                        <div id="resolutionTimeChart" class="chart"></div>
+                                    </div>
+                                    <div class="performance-card">
+                                        <h4>Workload Distribution</h4>
+                                        <div id="workloadChart" class="chart"></div>
+                                    </div>
+                                    <div class="performance-card">
+                                        <h4>SLA Compliance</h4>
+                                        <div id="slaChart" class="chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Custom Report -->
+                        <div id="customReport" class="report-section" style="display: none;">
+                            <div class="report-header">
+                                <h3>🔧 Custom Report Builder</h3>
+                            </div>
+                            
+                            <div class="custom-report-builder">
+                                <div class="builder-filters">
+                                    <h4>Select Filters</h4>
+                                    <div class="filter-options">
+                                        <label><input type="checkbox" value="status"> Status</label>
+                                        <label><input type="checkbox" value="priority"> Priority</label>
+                                        <label><input type="checkbox" value="category"> Category</label>
+                                        <label><input type="checkbox" value="assignee"> Assignee</label>
+                                        <label><input type="checkbox" value="date"> Date Range</label>
+                                        <label><input type="checkbox" value="tags"> Tags</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="builder-charts">
+                                    <h4>Select Chart Types</h4>
+                                    <div class="chart-options">
+                                        <label><input type="checkbox" value="pie"> Pie Chart</label>
+                                        <label><input type="checkbox" value="bar"> Bar Chart</label>
+                                        <label><input type="checkbox" value="line"> Line Chart</label>
+                                        <label><input type="checkbox" value="table"> Data Table</label>
+                                    </div>
+                                </div>
+                                
+                                <button onclick="buildCustomReport()" class="btn-primary">🔨 Build Report</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teams Section -->
+            <div id="teamsSection" class="content-section">
+                <div class="teams-container">
+                    <div class="teams-header">
+                        <h2>👥 Team Management</h2>
+                        <p>Manage teams, roles, and permissions for enterprise collaboration</p>
+                    </div>
+
+                    <!-- Team Management Tabs -->
+                    <div class="teams-tabs">
+                        <div class="tab-button active" onclick="switchTeamTab('teams')">🏢 Teams</div>
+                        <div class="tab-button" onclick="switchTeamTab('members')">👤 Members</div>
+                        <div class="tab-button" onclick="switchTeamTab('roles')">🔐 Roles</div>
+                        <div class="tab-button" onclick="switchTeamTab('departments')">🏛️ Departments</div>
+                    </div>
+
+                    <!-- Teams Tab -->
+                    <div id="teamsTab" class="team-tab-content active">
+                        <div class="teams-actions">
+                            <button onclick="openCreateTeamModal()" class="btn-primary">➕ Create Team</button>
+                            <button onclick="refreshTeams()" class="btn-secondary">🔄 Refresh</button>
+                        </div>
+
+                        <div class="teams-grid" id="teamsGrid">
+                            <!-- Teams will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Members Tab -->
+                    <div id="membersTab" class="team-tab-content">
+                        <div class="members-actions">
+                            <button onclick="openInviteMemberModal()" class="btn-primary">📧 Invite Member</button>
+                            <button onclick="refreshMembers()" class="btn-secondary">🔄 Refresh</button>
+                        </div>
+
+                        <div class="members-table-container">
+                            <table class="members-table" id="membersTable">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Team</th>
+                                        <th>Department</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="membersTableBody">
+                                    <!-- Members will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Roles Tab -->
+                    <div id="rolesTab" class="team-tab-content">
+                        <div class="roles-actions">
+                            <button onclick="openCreateRoleModal()" class="btn-primary">➕ Create Role</button>
+                            <button onclick="refreshRoles()" class="btn-secondary">🔄 Refresh</button>
+                        </div>
+
+                        <div class="roles-grid" id="rolesGrid">
+                            <!-- Roles will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Departments Tab -->
+                    <div id="departmentsTab" class="team-tab-content">
+                        <div class="departments-actions">
+                            <button onclick="openCreateDepartmentModal()" class="btn-primary">➕ Create Department</button>
+                            <button onclick="refreshDepartments()" class="btn-secondary">🔄 Refresh</button>
+                        </div>
+
+                        <div class="departments-grid" id="departmentsGrid">
+                            <!-- Departments will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Management Modals -->
+            
+            <!-- Create Team Modal -->
+            <div id="createTeamModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>➕ Create New Team</h2>
+                        <button class="modal-close" onclick="closeCreateTeamModal()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="createTeamForm">
+                            <div class="form-group">
+                                <label for="teamName">Team Name</label>
+                                <input type="text" id="teamName" placeholder="Enter team name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="teamDescription">Description</label>
+                                <textarea id="teamDescription" rows="3" placeholder="Enter team description"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="teamDepartment">Department</label>
+                                <select id="teamDepartment">
+                                    <option value="">Select Department</option>
+                                    <option value="engineering">Engineering</option>
+                                    <option value="design">Design</option>
+                                    <option value="product">Product</option>
+                                    <option value="support">Support</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="teamLead">Team Lead</label>
+                                <select id="teamLead">
+                                    <option value="">Select Team Lead</option>
+                                    <option value="admin@example.com">Admin User</option>
+                                    <option value="support@example.com">Support Staff</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="createTeam()" class="btn-primary">➕ Create Team</button>
+                        <button onclick="closeCreateTeamModal()" class="btn-secondary">❌ Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Invite Member Modal -->
+            <div id="inviteMemberModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>📧 Invite Team Member</h2>
+                        <button class="modal-close" onclick="closeInviteMemberModal()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="inviteMemberForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="inviteFirstName">First Name</label>
+                                    <input type="text" id="inviteFirstName" placeholder="First name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inviteLastName">Last Name</label>
+                                    <input type="text" id="inviteLastName" placeholder="Last name" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inviteEmail">Email</label>
+                                <input type="email" id="inviteEmail" placeholder="Enter email address" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="inviteRole">Role</label>
+                                <select id="inviteRole">
+                                    <option value="END_USER">End User</option>
+                                    <option value="SUPPORT_STAFF">Support Staff</option>
+                                    <option value="TEAM_LEAD">Team Lead</option>
+                                    <option value="ADMIN">Admin</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="inviteTeam">Team</label>
+                                <select id="inviteTeam">
+                                    <option value="">Select Team</option>
+                                    <option value="engineering">Engineering Team</option>
+                                    <option value="design">Design Team</option>
+                                    <option value="product">Product Team</option>
+                                    <option value="support">Support Team</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="inviteDepartment">Department</label>
+                                <select id="inviteDepartment">
+                                    <option value="">Select Department</option>
+                                    <option value="engineering">Engineering</option>
+                                    <option value="design">Design</option>
+                                    <option value="product">Product</option>
+                                    <option value="support">Support</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="inviteMember()" class="btn-primary">📧 Send Invitation</button>
+                        <button onclick="closeInviteMemberModal()" class="btn-secondary">❌ Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Role Modal -->
+            <div id="createRoleModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>🔐 Create New Role</h2>
+                        <button class="modal-close" onclick="closeCreateRoleModal()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="createRoleForm">
+                            <div class="form-group">
+                                <label for="roleName">Role Name</label>
+                                <input type="text" id="roleName" placeholder="Enter role name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="roleDescription">Description</label>
+                                <textarea id="roleDescription" rows="3" placeholder="Enter role description"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Permissions</label>
+                                <div class="permissions-grid">
+                                    <label class="permission-item">
+                                        <input type="checkbox" value="create_issues"> Create Issues
+                                    </label>
+                                    <label class="permission-item">
+                                        <input type="checkbox" value="edit_issues"> Edit Issues
+                                    </label>
+                                    <label class="permission-item">
+                                        <input type="checkbox" value="delete_issues"> Delete Issues
+                                    </label>
+                                    <label class="permission-item">
+                                        <input type="checkbox" value="assign_issues"> Assign Issues
+                                    </label>
+                                    <label class="permission-item">
+                                        <input type="checkbox" value="view_reports"> View Reports
+                                    </label>
+                                    <label class="permission-item">
+                                        <input type="checkbox" value="manage_teams"> Manage Teams
+                                    </label>
+                                    <label class="permission-item">
+                                        <input type="checkbox" value="manage_users"> Manage Users
+                                    </label>
+                                    <label class="permission-item">
+                                        <input type="checkbox" value="admin_access"> Admin Access
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="createRole()" class="btn-primary">🔐 Create Role</button>
+                        <button onclick="closeCreateRoleModal()" class="btn-secondary">❌ Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Department Modal -->
+            <div id="createDepartmentModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>🏛️ Create New Department</h2>
+                        <button class="modal-close" onclick="closeCreateDepartmentModal()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="createDepartmentForm">
+                            <div class="form-group">
+                                <label for="departmentName">Department Name</label>
+                                <input type="text" id="departmentName" placeholder="Enter department name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="departmentDescription">Description</label>
+                                <textarea id="departmentDescription" rows="3" placeholder="Enter department description"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="departmentHead">Department Head</label>
+                                <select id="departmentHead">
+                                    <option value="">Select Department Head</option>
+                                    <option value="admin@example.com">Admin User</option>
+                                    <option value="support@example.com">Support Staff</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="departmentBudget">Budget (Optional)</label>
+                                <input type="number" id="departmentBudget" placeholder="Enter budget amount">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="createDepartment()" class="btn-primary">🏛️ Create Department</button>
+                        <button onclick="closeCreateDepartmentModal()" class="btn-secondary">❌ Cancel</button>
                     </div>
                 </div>
             </div>
